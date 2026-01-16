@@ -194,17 +194,20 @@ Use workgroup-state skill for reads/writes. After each phase, update with summar
 
 ### Phase 0: Discover
 
-Spawn these subagents (can run in parallel):
+Spawn these subagents IN PARALLEL (all three at once):
 
 | Agent | Purpose | Returns |
 |-------|---------|---------|
 | `k-context-gatherer` | Scans codebase for relevant files | List of files, patterns found |
 | `k-complexity-analyzer` | Estimates scope and risks | Complexity rating, risk factors |
+| `k-knowledge-explorer` | Searches local knowledge sources | Previous specs, insights, recommendations |
 
-After both return:
+**These are LEAF AGENTS - they cannot spawn subagents. They read and return.**
+
+After all three return:
 1. Update state.json with discovery results
 2. In guided/step mode: Display summary, ask to proceed
-3. Continue to spec phase
+3. Continue to spec phase (pass knowledge insights to k-spec-chief)
 
 ### Phase 1: Spec → k-spec-chief
 Load template: `.claude/templates/delegation/design-spec.md`
