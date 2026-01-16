@@ -14,6 +14,16 @@ arguments:
     default: false
 ---
 
+## ⛔ CRITICAL: HAND OFF TO ORCHESTRATOR ⛔
+
+**THIS COMMAND RESTORES STATE AND HANDS OFF TO THE ORCHESTRATOR.**
+
+After restoring WorkGroup state, you MUST spawn the orchestrator to resume the workflow.
+
+**DO NOT manually run individual phase commands. Let the orchestrator drive.**
+
+---
+
 # /k:continue - Resume WorkGroup
 
 ## Usage
@@ -146,10 +156,39 @@ All bypasses logged to `knowz/logs/enforcement.log`:
    | Conflicting files | Show diff, ask resolution |
    | Failed task | Show error, offer retry |
 
-7. **Resume Execution**
-   - Continue from determined phase
-   - Follow mode (auto/guided/step)
+7. **Resume Execution via Orchestrator**
    - Update timeline with resume event
+   - **Spawn the orchestrator to continue the workflow**
+
+## Orchestrator Handoff (CRITICAL)
+
+**After displaying the resume summary, you MUST spawn the orchestrator:**
+
+```
+Use Task tool to spawn k-orchestrator agent with:
+- subagent_type: "k-orchestrator"
+- prompt: |
+    Resume orchestration for WorkGroup: {wg-id}
+    Goal: {goal-statement}
+    Mode: {mode from state}
+    Current Phase: {current phase from state}
+
+    State shows:
+    - Completed phases: {list}
+    - Current phase status: {in_progress|pending}
+    - Execution progress: {cycle X of Y, task details if applicable}
+
+    Continue driving the workflow from the current phase:
+    - If spec incomplete → complete spec, then plan → execute → audit → finalize
+    - If plan incomplete → complete plan, then execute → audit → finalize
+    - If execute incomplete → complete remaining cycles, then audit → finalize
+    - If audit incomplete → complete audit, then finalize
+    - If finalize incomplete → complete finalization
+
+    State file: knowz/workgroups/{wg-id}/state.json
+```
+
+**The orchestrator takes over and resumes the end-to-end workflow.**
 
 ## Agents Delegated
 

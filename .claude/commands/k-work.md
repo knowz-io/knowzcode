@@ -13,27 +13,29 @@ arguments:
 
 ## ⛔ CRITICAL: READ BEFORE PROCEEDING ⛔
 
-**THIS COMMAND ONLY INITIALIZES A WORKGROUP. IT DOES NOT IMPLEMENT ANYTHING.**
+**THIS COMMAND INITIALIZES A WORKGROUP AND HANDS OFF TO THE ORCHESTRATOR.**
 
 YOU MUST:
 1. Create the WorkGroup directory and state files
 2. Gather initial context
 3. Display summary
-4. **STOP AND SUGGEST `/k:spec` AS NEXT STEP**
+4. **SPAWN THE ORCHESTRATOR to drive the workflow**
 
 ❌ DO NOT:
-- Write any implementation code
-- Modify source files
+- Write any implementation code yourself
+- Modify source files directly
 - Skip to implementation
-- Bypass the spec/plan/execute workflow
+- Bypass the orchestrator handoff
 
-**WORKFLOW IS MANDATORY:**
+**WORKFLOW IS MANDATORY (driven by orchestrator):**
 ```
-/k:work → /k:spec → /k:plan → /k:execute → /k:audit → /k:finalize
+/k:work → [orchestrator] → spec → plan → execute → audit → finalize
 ```
 
-**AFTER COMPLETING INITIALIZATION, YOU MUST STOP AND TELL THE USER:**
-> "WorkGroup initialized. Run `/k:spec` to create the specification."
+**AFTER COMPLETING INITIALIZATION, YOU MUST:**
+1. Display the WorkGroup summary
+2. Spawn the `k-orchestrator` agent via Task tool (see "Orchestrator Handoff" section)
+3. The orchestrator takes over from there
 
 ---
 
@@ -182,28 +184,47 @@ Creates a new WorkGroup session with a defined goal, initializing the tracking s
 ```
 /k:work "goal" --mode=auto
 ```
-After initialization, automatically proceeds to:
-1. `/k:spec` (draft + refine)
-2. `/k:plan` (create execution plan)
-3. `/k:execute` (run all cycles)
-4. `/k:audit` (completeness check)
-5. `/k:finalize` (commit changes)
+After initialization, automatically proceeds through all phases via orchestrator.
 
 ### Guided Mode (Default)
 ```
 /k:work "goal" --mode=guided
 ```
-- Pauses after each phase for review
-- Shows summary and asks for confirmation
-- Allows modifications between phases
+After initialization, spawns orchestrator which pauses between phases for review.
 
 ### Step Mode
 ```
 /k:work "goal" --mode=step
 ```
-- Pauses after each significant action
-- Provides detailed explanations
-- Ideal for learning or complex changes
+After initialization, spawns orchestrator which pauses after each significant action.
+
+## Orchestrator Handoff (CRITICAL)
+
+**After Step 8 (Display Summary), you MUST spawn the orchestrator:**
+
+```
+Use Task tool to spawn k-orchestrator agent with:
+- subagent_type: "k-orchestrator"
+- prompt: |
+    Resume orchestration for WorkGroup: {wg-id}
+    Goal: {goal-statement}
+    Mode: {auto|guided|step}
+    Current Phase: spec (pending)
+
+    Drive the workflow through all phases:
+    1. spec → Create and refine specification
+    2. plan → Create execution plan
+    3. execute → Delegate to k-impl-agent subagents
+    4. audit → Verify via k-arc-auditor
+    5. finalize → Commit via k-finalization
+
+    State file: knowz/workgroups/{wg-id}/state.json
+```
+
+**The orchestrator takes over and drives the end-to-end workflow.**
+
+In guided/step modes, the orchestrator will pause at appropriate checkpoints.
+In auto mode, it runs through all phases, pausing only on errors.
 
 ## Enforcement Policy Integration
 
@@ -243,18 +264,24 @@ pre_authorized_bypasses:
 
 ---
 
-## ⚠️ REMINDER: STOP AFTER INITIALIZATION ⚠️
+## ⚠️ REMINDER: HAND OFF TO ORCHESTRATOR ⚠️
 
-**DO NOT PROCEED TO IMPLEMENTATION.**
+**DO NOT IMPLEMENT DIRECTLY. SPAWN THE ORCHESTRATOR.**
 
-Your job is DONE after Step 8. Tell the user to run `/k:spec` next.
+After Step 8 (Display Summary), spawn the orchestrator agent:
 
-The Knowz workflow is:
-1. `/k:work` - Initialize (YOU ARE HERE - STOP AFTER THIS)
-2. `/k:spec` - Create specification
-3. `/k:plan` - Create execution plan
-4. `/k:execute` - Delegate to subagents
-5. `/k:audit` - Verify completion
-6. `/k:finalize` - Commit changes
+```
+Task tool call:
+- subagent_type: "k-orchestrator"
+- description: "Orchestrate WorkGroup workflow"
+- prompt: (see Orchestrator Handoff section above)
+```
 
-**NEVER SKIP STEPS. NEVER IMPLEMENT DIRECTLY.**
+The orchestrator will drive the complete workflow:
+1. **spec** - Create and refine specification
+2. **plan** - Create execution plan
+3. **execute** - Delegate to k-impl-agent subagents
+4. **audit** - Verify via k-arc-auditor
+5. **finalize** - Commit via k-finalization
+
+**NEVER SKIP THE ORCHESTRATOR. NEVER IMPLEMENT DIRECTLY.**
