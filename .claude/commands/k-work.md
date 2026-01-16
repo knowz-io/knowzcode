@@ -212,16 +212,28 @@ Use Task tool to spawn k-orchestrator agent with:
     Current Phase: spec (pending)
 
     Drive the workflow through all phases:
-    1. spec → Create and refine specification
-    2. plan → Create execution plan
-    3. execute → Delegate to k-impl-agent subagents
-    4. audit → Verify via k-arc-auditor
-    5. finalize → Commit via k-finalization
+    1. spec → Delegate to k-spec-chief
+    2. plan → Delegate to k-dependency-analyzer, k-cycle-optimizer
+    3. execute → Spawn k-impl-agent subagents per cycle
+    4. audit → Delegate to k-arc-auditor
+    5. finalize → Delegate to k-finalization
 
     State file: knowz/workgroups/{wg-id}/state.json
+
+    CRITICAL: You are a ROUTER, not a worker.
+    - Do NOT read files yourself - spawn subagents to investigate
+    - Do NOT explore code yourself - spawn subagents to explore
+    - Do NOT analyze anything yourself - spawn subagents to analyze
+    - ONLY read state.json, spawn subagents, receive summaries, update state
 ```
 
 **The orchestrator takes over and drives the end-to-end workflow.**
+
+**Orchestrator stays lean by delegation:**
+- ALL exploration → subagents
+- ALL analysis → subagents
+- ALL implementation → subagents
+- Orchestrator only routes and decides based on subagent summaries
 
 In guided/step modes, the orchestrator will pause at appropriate checkpoints.
 In auto mode, it runs through all phases, pausing only on errors.
