@@ -112,6 +112,17 @@ knowz/workgroups/wg-{YYYYMMDD}-{slug}/
 
 ## Orchestrator Handoff
 
+⚠️ **USE THIS PROMPT EXACTLY - DO NOT ADD INVESTIGATION STEPS** ⚠️
+
+When spawning the orchestrator, use ONLY this prompt template. Do NOT add:
+- Curl commands
+- Investigation steps
+- "Check this field"
+- "Look at Sentry"
+- Any specific instructions about HOW to investigate
+
+The orchestrator will spawn subagents to figure out HOW. You only provide WHAT (the goal).
+
 ```
 Use Task tool to spawn k-orchestrator agent with:
 - subagent_type: "k-orchestrator"
@@ -121,26 +132,42 @@ Use Task tool to spawn k-orchestrator agent with:
     Mode: {auto|guided|step}
     Current Phase: discover (pending)
 
-    Start with discovery phase:
-    1. Spawn k-context-gatherer → get relevant files summary
-    2. Spawn k-complexity-analyzer → get complexity estimate
-    3. Update state.json with discovery results
-    4. Display summary to user
-
-    Then continue through phases:
-    5. spec → Delegate to k-spec-chief
-    6. plan → Delegate to k-planner
-    7. execute → Spawn k-impl-agent subagents per cycle
-    8. audit → Delegate to k-arc-auditor
-    9. finalize → Delegate to k-finalization
-
     State file: knowz/workgroups/{wg-id}/state.json
 
-    CRITICAL: You are a ROUTER, not a worker.
-    - Do NOT read files yourself - spawn subagents
-    - Do NOT explore code yourself - spawn subagents
-    - Do NOT analyze anything yourself - spawn subagents
-    - ONLY spawn subagents, receive summaries, update state
+    YOU ARE A ROUTER. Delegate ALL work to subagents:
+
+    Phase 0 - Discovery (spawn these in parallel):
+    - Spawn k-context-gatherer with goal → returns relevant files
+    - Spawn k-complexity-analyzer with goal → returns complexity estimate
+
+    Phase 1-5 - Delegate to phase agents:
+    - spec → k-spec-chief
+    - plan → k-parallel-planner
+    - execute → k-impl-agent (up to 3 per cycle)
+    - audit → k-arc-auditor
+    - finalize → k-finalization
+
+    DO NOT use Read, Grep, Glob, Bash, or curl yourself.
+    DO NOT investigate yourself.
+    ONLY spawn subagents and update state.
+```
+
+**WRONG** (adds investigation steps):
+```
+prompt: |
+  Goal: Fix summary not showing
+  1. Use curl to check the API...  ← WRONG
+  2. Check if field exists...      ← WRONG
+```
+
+**CORRECT** (only goal, let orchestrator delegate):
+```
+prompt: |
+  Goal: Fix summary not showing on staging for knowledge item X
+  Mode: auto
+  Current Phase: discover
+
+  YOU ARE A ROUTER. Spawn subagents for discovery.
 ```
 
 ## Orchestrator Spawn Failure
