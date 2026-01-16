@@ -1,0 +1,142 @@
+{
+  "name": "todo-manager",
+  "version": "3.0.0",
+  "description": "Manage workgroup todos with Knowz: prefix. Updated from KnowzCode: to Knowz: prefix for consistency with v3 naming.",
+  "parameters": [
+    {
+      "name": "operation",
+      "type": "string",
+      "required": true,
+      "description": "Operation: 'add', 'complete', 'update', 'list', 'clear'"
+    },
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": true,
+      "description": "The WorkGroupID for scoping todos"
+    },
+    {
+      "name": "todoText",
+      "type": "string",
+      "required": false,
+      "description": "Todo text (required for add/update operations)"
+    },
+    {
+      "name": "todoId",
+      "type": "string",
+      "required": false,
+      "description": "Todo identifier (required for complete/update operations)"
+    },
+    {
+      "name": "priority",
+      "type": "string",
+      "required": false,
+      "description": "Priority level: 'high', 'medium', 'low' (default: 'medium')"
+    }
+  ],
+  "actions": [
+    {
+      "name": "add",
+      "description": "Add a new todo item",
+      "steps": [
+        "Generate unique todoId",
+        "Format with Knowz: prefix",
+        "Add workgroupId tag",
+        "Set priority and status",
+        "Append to todo list"
+      ],
+      "format": "Knowz: [{workgroupId}] {todoText}"
+    },
+    {
+      "name": "complete",
+      "description": "Mark a todo as complete",
+      "steps": [
+        "Find todo by todoId",
+        "Mark as completed with timestamp",
+        "Move to completed section",
+        "Update workgroup state"
+      ]
+    },
+    {
+      "name": "update",
+      "description": "Update existing todo",
+      "steps": [
+        "Find todo by todoId",
+        "Update text, priority, or status",
+        "Preserve original creation timestamp",
+        "Add modification timestamp"
+      ]
+    },
+    {
+      "name": "list",
+      "description": "List todos for a workgroup",
+      "filters": [
+        "By workgroupId (required)",
+        "By status (pending, in-progress, completed)",
+        "By priority (high, medium, low)"
+      ],
+      "output": "Formatted list of matching todos"
+    },
+    {
+      "name": "clear",
+      "description": "Clear completed todos for a workgroup",
+      "steps": [
+        "Find all completed todos for workgroupId",
+        "Archive to log file",
+        "Remove from active list"
+      ]
+    }
+  ],
+  "todoFormat": {
+    "prefix": "Knowz:",
+    "structure": "Knowz: [{workgroupId}] [{priority}] {todoText}",
+    "statuses": ["pending", "in-progress", "completed", "blocked"],
+    "priorities": ["high", "medium", "low"]
+  },
+  "storage": {
+    "activeTodos": "knowz/todos.md",
+    "archive": "knowz/todos-archive.md"
+  },
+  "notes": [
+    "Always use Knowz: prefix (not KnowzCode:)",
+    "Todos are scoped by workgroupId for filtering",
+    "Completed todos are archived, not deleted"
+  ],
+  "errors": {
+    "invalid_operation": {
+      "code": "TODO001",
+      "action": "return_error",
+      "recovery": "Valid operations: add, complete, update, list, clear"
+    },
+    "workgroup_not_found": {
+      "code": "TODO002",
+      "action": "return_error",
+      "recovery": "Verify workgroupId exists in knowz/tracker.md"
+    },
+    "todo_text_required": {
+      "code": "TODO003",
+      "action": "return_error",
+      "recovery": "Provide todoText for add/update operations"
+    },
+    "todo_id_required": {
+      "code": "TODO004",
+      "action": "return_error",
+      "recovery": "Provide todoId for complete/update operations"
+    },
+    "todo_not_found": {
+      "code": "TODO005",
+      "action": "return_error",
+      "recovery": "Todo with id {todoId} not found in workgroup {workgroupId}"
+    },
+    "file_not_found": {
+      "code": "TODO006",
+      "action": "return_blocked",
+      "recovery": "Create knowz/todos.md file"
+    },
+    "write_failed": {
+      "code": "TODO007",
+      "action": "return_error",
+      "recovery": "Check write permissions for knowz/ directory"
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "name": "parallel-planner",
+  "version": "0.1.0",
+  "description": "Group tasks by dependency into parallel execution groups. Maximum 5 tasks per group to maintain focus and parallelism.",
+  "parameters": [
+    {
+      "name": "tasks",
+      "type": "array",
+      "required": true,
+      "description": "Array of task objects with id, description, and dependencies"
+    },
+    {
+      "name": "maxPerGroup",
+      "type": "number",
+      "required": false,
+      "description": "Maximum tasks per execution group (default: 3)"
+    },
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": true,
+      "description": "WorkGroupID for state tracking"
+    }
+  ],
+  "actions": [
+    {
+      "name": "analyzeDependencies",
+      "description": "Build dependency graph from task list",
+      "steps": [
+        "Parse each task's dependencies array",
+        "Build directed acyclic graph (DAG)",
+        "Detect circular dependencies and report errors",
+        "Identify root tasks (no dependencies)"
+      ]
+    },
+    {
+      "name": "createExecutionGroups",
+      "description": "Group tasks into parallel execution groups",
+      "steps": [
+        "Group 1: All tasks with no dependencies",
+        "Group N: Tasks whose dependencies are all in groups < N",
+        "Split groups exceeding maxPerGroup (default 3)",
+        "Prioritize critical path tasks first"
+      ],
+      "output": {
+        "type": "array",
+        "schema": {
+          "groupNumber": "number",
+          "tasks": "array of task objects",
+          "canParallelize": "boolean"
+        }
+      }
+    },
+    {
+      "name": "validatePlan",
+      "description": "Verify execution plan is valid",
+      "checks": [
+        "No circular dependencies exist",
+        "All dependencies reference valid task IDs",
+        "Each group respects maxPerGroup limit",
+        "Total groups is reasonable (warn if > 10)"
+      ]
+    },
+    {
+      "name": "updateState",
+      "description": "Save execution plan to workgroup state",
+      "steps": [
+        "Format groups for state storage",
+        "Update workgroup-state with pendingTasks",
+        "Set currentGroup to 1",
+        "Set status to 'executing'"
+      ]
+    }
+  ],
+  "constraints": {
+    "maxTasksPerGroup": 3,
+    "maxTotalGroups": 20,
+    "requireExplicitDependencies": true
+  },
+  "example": {
+    "input": [
+      {"id": "T1", "description": "Create database schema", "dependencies": []},
+      {"id": "T2", "description": "Build API endpoints", "dependencies": ["T1"]},
+      {"id": "T3", "description": "Create UI components", "dependencies": []},
+      {"id": "T4", "description": "Integrate API with UI", "dependencies": ["T2", "T3"]}
+    ],
+    "output": [
+      {"groupNumber": 1, "tasks": ["T1", "T3"], "canParallelize": true},
+      {"groupNumber": 2, "tasks": ["T2"], "canParallelize": false},
+      {"groupNumber": 3, "tasks": ["T4"], "canParallelize": false}
+    ]
+  },
+  "errors": {
+    "tasks_empty": {
+      "code": "PAR001",
+      "action": "return_error",
+      "recovery": "Provide at least one task in the tasks array"
+    },
+    "circular_dependency": {
+      "code": "PAR002",
+      "action": "return_error",
+      "recovery": "Remove circular reference between tasks: {task_a} <-> {task_b}"
+    },
+    "invalid_dependency_ref": {
+      "code": "PAR003",
+      "action": "return_error",
+      "recovery": "Task {task_id} references non-existent dependency {dep_id}"
+    },
+    "workgroup_not_found": {
+      "code": "PAR004",
+      "action": "return_blocked",
+      "recovery": "Verify workgroupId exists in knowz/tracker.md"
+    },
+    "max_groups_exceeded": {
+      "code": "PAR005",
+      "action": "return_blocked",
+      "recovery": "Reduce task count or simplify dependencies - max 20 groups"
+    },
+    "state_write_failed": {
+      "code": "PAR006",
+      "action": "return_error",
+      "recovery": "Check write permissions for knowz/state/ directory"
+    }
+  }
+}

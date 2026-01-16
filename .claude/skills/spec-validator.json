@@ -1,0 +1,136 @@
+{
+  "name": "spec-validator",
+  "version": "3.0.0",
+  "description": "Score spec quality and validate completeness. Consolidates spec-quality-check, spec-validator, and workgroup-spec-validator into a single comprehensive validation skill.",
+  "parameters": [
+    {
+      "name": "specPath",
+      "type": "string",
+      "required": true,
+      "description": "Path to the spec file to validate"
+    },
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": false,
+      "description": "WorkGroupID for cross-referencing (auto-detected from filename if not provided)"
+    },
+    {
+      "name": "strictMode",
+      "type": "boolean",
+      "required": false,
+      "description": "Enable strict validation (default: false)"
+    }
+  ],
+  "actions": [
+    {
+      "name": "validateStructure",
+      "description": "Check all 8 required sections are present",
+      "checks": [
+        "All 8 sections exist with proper headings",
+        "Sections are in correct order",
+        "No duplicate sections",
+        "Proper markdown formatting"
+      ],
+      "weight": 20
+    },
+    {
+      "name": "validateContent",
+      "description": "Assess content quality of each section",
+      "checks": [
+        "Overview is 2+ paragraphs with context",
+        "Goals are specific and measurable",
+        "Non-Goals explicitly define scope boundaries",
+        "Technical Approach has concrete decisions",
+        "Implementation Plan has ordered steps",
+        "Testing Strategy covers unit and integration",
+        "Dependencies list specific requirements",
+        "Open Questions are actionable"
+      ],
+      "weight": 40
+    },
+    {
+      "name": "validateConsistency",
+      "description": "Cross-reference spec with other artifacts",
+      "checks": [
+        "WorkGroupID matches filename",
+        "Referenced dependencies exist in tracker",
+        "Technical approach aligns with system-diagram.mmd",
+        "No conflicts with other approved specs"
+      ],
+      "weight": 20
+    },
+    {
+      "name": "validateCompleteness",
+      "description": "Ensure spec is implementation-ready",
+      "checks": [
+        "No TODO or placeholder text",
+        "All open questions have proposed answers",
+        "Implementation plan has time estimates",
+        "Testing strategy has specific test cases"
+      ],
+      "weight": 20
+    },
+    {
+      "name": "scoreSpec",
+      "description": "Calculate overall quality score",
+      "output": {
+        "score": "0-100 numeric score",
+        "grade": "A (90+), B (80-89), C (70-79), D (60-69), F (<60)",
+        "issues": "Array of specific issues found",
+        "suggestions": "Array of improvement recommendations",
+        "readyForImplementation": "boolean"
+      }
+    }
+  ],
+  "scoringRubric": {
+    "structure": {
+      "weight": 20,
+      "criteria": "All 8 sections present and properly formatted"
+    },
+    "content": {
+      "weight": 40,
+      "criteria": "Each section has substantive, relevant content"
+    },
+    "consistency": {
+      "weight": 20,
+      "criteria": "Aligns with architecture and other specs"
+    },
+    "completeness": {
+      "weight": 20,
+      "criteria": "Ready for implementation without gaps"
+    }
+  },
+  "thresholds": {
+    "approved": 80,
+    "needsRevision": 60,
+    "rejected": 0
+  },
+  "errors": {
+    "spec_not_found": {
+      "code": "VAL001",
+      "action": "return_blocked",
+      "recovery": "Verify specPath exists and is readable"
+    },
+    "spec_parse_error": {
+      "code": "VAL002",
+      "action": "return_error",
+      "recovery": "Validate spec markdown structure matches template"
+    },
+    "workgroup_mismatch": {
+      "code": "VAL003",
+      "action": "return_error",
+      "recovery": "WorkGroupID in spec does not match filename or parameter"
+    },
+    "architecture_not_found": {
+      "code": "VAL004",
+      "action": "return_blocked",
+      "recovery": "Create system-diagram.mmd for consistency validation"
+    },
+    "tracker_not_found": {
+      "code": "VAL005",
+      "action": "return_blocked",
+      "recovery": "Create knowz/tracker.md for dependency validation"
+    }
+  }
+}

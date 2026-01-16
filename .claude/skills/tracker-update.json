@@ -1,0 +1,140 @@
+{
+  "name": "tracker-update",
+  "version": "3.0.0",
+  "description": "Modify tracker status columns in knowz/tracker.md. Manages workgroup progress through defined status states.",
+  "parameters": [
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": true,
+      "description": "The WorkGroupID to update"
+    },
+    {
+      "name": "column",
+      "type": "string",
+      "required": true,
+      "description": "Column to update: 'Status', 'Spec', 'Code', 'Test', 'Review'"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "description": "New value for the column"
+    },
+    {
+      "name": "notes",
+      "type": "string",
+      "required": false,
+      "description": "Optional notes to add to the Notes column"
+    }
+  ],
+  "actions": [
+    {
+      "name": "updateStatus",
+      "description": "Update the main Status column",
+      "validValues": [
+        "Planned",
+        "Spec-Writing",
+        "Spec-Review",
+        "In-Progress",
+        "Testing",
+        "Review",
+        "Blocked",
+        "Done"
+      ],
+      "steps": [
+        "Read knowz/tracker.md",
+        "Find row matching workgroupId",
+        "Update Status column with new value",
+        "Add timestamp to Notes if significant change",
+        "Write updated tracker"
+      ]
+    },
+    {
+      "name": "updateSpecStatus",
+      "description": "Update Spec column status",
+      "validValues": ["Pending", "Draft", "Review", "Approved", "N/A"],
+      "steps": [
+        "Find workgroup row",
+        "Update Spec column",
+        "Link to spec file if exists"
+      ]
+    },
+    {
+      "name": "updateCodeStatus",
+      "description": "Update Code column status",
+      "validValues": ["Pending", "In-Progress", "Complete", "N/A"],
+      "steps": [
+        "Find workgroup row",
+        "Update Code column",
+        "Note completion percentage if partial"
+      ]
+    },
+    {
+      "name": "updateTestStatus",
+      "description": "Update Test column status",
+      "validValues": ["Pending", "Writing", "Passing", "Failing", "N/A"],
+      "steps": [
+        "Find workgroup row",
+        "Update Test column",
+        "Include test count if available"
+      ]
+    },
+    {
+      "name": "updateReviewStatus",
+      "description": "Update Review column status",
+      "validValues": ["Pending", "In-Review", "Approved", "Changes-Requested", "N/A"],
+      "steps": [
+        "Find workgroup row",
+        "Update Review column"
+      ]
+    },
+    {
+      "name": "addWorkgroup",
+      "description": "Add new workgroup row to tracker",
+      "steps": [
+        "Validate workgroupId format",
+        "Create new row with all columns set to initial values",
+        "Insert in appropriate section of tracker",
+        "Set Status to 'Planned'"
+      ]
+    }
+  ],
+  "trackerPath": "knowz/tracker.md",
+  "trackerFormat": {
+    "columns": ["WorkGroupID", "Description", "Status", "Spec", "Code", "Test", "Review", "Notes"],
+    "type": "markdown-table"
+  },
+  "errors": {
+    "tracker_not_found": {
+      "code": "TRK001",
+      "action": "return_blocked",
+      "recovery": "Create knowz/tracker.md with proper table format"
+    },
+    "workgroup_not_found": {
+      "code": "TRK002",
+      "action": "return_error",
+      "recovery": "Use addWorkgroup action to create workgroup first"
+    },
+    "invalid_column": {
+      "code": "TRK003",
+      "action": "return_error",
+      "recovery": "Valid columns: Status, Spec, Code, Test, Review, Notes"
+    },
+    "invalid_value": {
+      "code": "TRK004",
+      "action": "return_error",
+      "recovery": "Check validValues for the target column"
+    },
+    "tracker_parse_error": {
+      "code": "TRK005",
+      "action": "return_blocked",
+      "recovery": "Validate tracker.md markdown table format"
+    },
+    "concurrent_write": {
+      "code": "TRK006",
+      "action": "return_blocked",
+      "recovery": "Retry after brief delay - another process is writing"
+    }
+  }
+}

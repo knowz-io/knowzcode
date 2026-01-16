@@ -1,0 +1,136 @@
+{
+  "name": "architecture-diff",
+  "version": "3.0.0",
+  "description": "Compare specs to Mermaid architecture diagram. Ensures specifications align with the documented system architecture and identifies drift.",
+  "parameters": [
+    {
+      "name": "specPath",
+      "type": "string",
+      "required": true,
+      "description": "Path to the spec file to compare"
+    },
+    {
+      "name": "diagramPath",
+      "type": "string",
+      "required": false,
+      "description": "Path to Mermaid diagram (default: knowz/architecture/system-diagram.mmd)"
+    },
+    {
+      "name": "checkType",
+      "type": "string",
+      "required": false,
+      "description": "Type of check: 'full', 'components', 'relationships', 'boundaries'"
+    }
+  ],
+  "actions": [
+    {
+      "name": "parseArchitecture",
+      "description": "Parse the Mermaid diagram structure",
+      "steps": [
+        "Load system-diagram.mmd file",
+        "Extract component definitions",
+        "Extract relationships and data flows",
+        "Identify system boundaries and contexts"
+      ],
+      "output": {
+        "components": "List of defined components",
+        "relationships": "Component connection map",
+        "boundaries": "System boundary definitions"
+      }
+    },
+    {
+      "name": "extractSpecReferences",
+      "description": "Extract architecture references from spec",
+      "steps": [
+        "Parse spec Technical Approach section",
+        "Identify component references",
+        "Extract proposed relationships",
+        "Note boundary crossings"
+      ]
+    },
+    {
+      "name": "compareComponents",
+      "description": "Check if spec references valid components",
+      "checks": [
+        "All referenced components exist in diagram",
+        "No undefined component dependencies",
+        "Component responsibilities align with diagram"
+      ],
+      "output": {
+        "valid": "Components matching diagram",
+        "missing": "Components in spec not in diagram",
+        "undefined": "Unknown component references"
+      }
+    },
+    {
+      "name": "compareRelationships",
+      "description": "Validate proposed relationships",
+      "checks": [
+        "Data flows match diagram connections",
+        "No bypassing of defined interfaces",
+        "Protocol alignment (REST, gRPC, events, etc.)"
+      ]
+    },
+    {
+      "name": "compareBoundaries",
+      "description": "Check system boundary compliance",
+      "checks": [
+        "Changes stay within defined boundaries",
+        "Cross-boundary calls use proper interfaces",
+        "Security boundaries respected"
+      ]
+    },
+    {
+      "name": "generateDiffReport",
+      "description": "Create comparison report",
+      "output": {
+        "aligned": "Aspects that match architecture",
+        "divergent": "Aspects that differ from architecture",
+        "additions": "New elements spec would add",
+        "recommendations": "Suggested updates to spec or diagram"
+      }
+    }
+  ],
+  "defaultDiagramPath": "knowz/architecture/system-diagram.mmd",
+  "supportedDiagramTypes": [
+    "flowchart",
+    "graph",
+    "C4Context",
+    "C4Container",
+    "C4Component"
+  ],
+  "driftCategories": {
+    "critical": "Spec contradicts architecture fundamentals",
+    "high": "Spec extends architecture without documentation",
+    "medium": "Significant deviation from patterns",
+    "low": "Naming or convention differences",
+    "enhancement": "Spec proposes valid architecture improvements"
+  },
+  "errors": {
+    "spec_not_found": {
+      "code": "ARCH001",
+      "action": "return_blocked",
+      "recovery": "Verify specPath exists and is readable"
+    },
+    "diagram_not_found": {
+      "code": "ARCH002",
+      "action": "return_blocked",
+      "recovery": "Create architecture diagram at knowz/architecture/system-diagram.mmd or specify diagramPath"
+    },
+    "diagram_parse_error": {
+      "code": "ARCH003",
+      "action": "return_error",
+      "recovery": "Validate Mermaid diagram syntax"
+    },
+    "unsupported_diagram_type": {
+      "code": "ARCH004",
+      "action": "return_error",
+      "recovery": "Use supported type: flowchart, graph, C4Context, C4Container, C4Component"
+    },
+    "spec_parse_error": {
+      "code": "ARCH005",
+      "action": "return_error",
+      "recovery": "Validate spec markdown structure"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "version": "1.2.0",
+  "description": "MCP Manager configuration",
+
+  "recommended_servers": {
+    "knowz": {
+      "type": "cloud",
+      "setup": "/k:mcp setup knowz",
+      "description": "Personal knowledge base"
+    },
+    "playwright": {
+      "type": "local",
+      "setup": "claude mcp add playwright npx @anthropic/mcp-server-playwright",
+      "description": "Browser automation"
+    },
+    "github": {
+      "type": "local",
+      "setup": "claude mcp add github npx @anthropic/mcp-server-github",
+      "description": "Repository operations"
+    },
+    "sentry": {
+      "type": "local",
+      "setup": "claude mcp add sentry npx @sentry/mcp-server",
+      "description": "Error tracking"
+    }
+  },
+
+  "response_limits": {
+    "max_tokens": 800
+  },
+
+  "artifacts_path": ".knowz/artifacts/"
+}

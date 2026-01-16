@@ -1,0 +1,19 @@
+{
+  "name": "personal-knowledge",
+  "description": "Search and manage personal knowledge via Knowz MCP",
+  "version": "1.1.0",
+  "triggers": [
+    "search my knowledge",
+    "what do I know about",
+    "save this to my notes",
+    "list my vaults"
+  ],
+  "execution": {
+    "delegate_to": "/k:mcp",
+    "server": "knowz"
+  },
+  "prerequisite": {
+    "setup": "/k:mcp setup knowz",
+    "env": "KNOWZ_API_KEY"
+  }
+}

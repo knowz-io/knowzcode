@@ -1,0 +1,134 @@
+{
+  "name": "workgroup-state",
+  "version": "3.0.0",
+  "description": "Read and write WorkGroup state JSON file for lean orchestrator pattern. Maintains execution state across agent handoffs.",
+  "parameters": [
+    {
+      "name": "operation",
+      "type": "string",
+      "required": true,
+      "description": "Operation type: 'read', 'write', 'update', 'reset'"
+    },
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": true,
+      "description": "The WorkGroupID to operate on"
+    },
+    {
+      "name": "stateData",
+      "type": "object",
+      "required": false,
+      "description": "State data to write or update (required for write/update operations)"
+    }
+  ],
+  "actions": [
+    {
+      "name": "read",
+      "description": "Read current state for a workgroup",
+      "steps": [
+        "Load knowz/state/{workgroupId}.json",
+        "Parse JSON and return state object",
+        "Return empty state if file doesn't exist"
+      ],
+      "output": {
+        "type": "object",
+        "schema": {
+          "workgroupId": "string",
+          "status": "string",
+          "currentCycle": "number",
+          "completedTasks": "array",
+          "pendingTasks": "array",
+          "blockers": "array",
+          "lastUpdated": "string"
+        }
+      }
+    },
+    {
+      "name": "write",
+      "description": "Write complete state for a workgroup",
+      "steps": [
+        "Validate stateData structure",
+        "Add lastUpdated timestamp",
+        "Write to knowz/state/{workgroupId}.json",
+        "Return success confirmation"
+      ]
+    },
+    {
+      "name": "update",
+      "description": "Partial update of workgroup state",
+      "steps": [
+        "Read existing state",
+        "Merge stateData with existing state",
+        "Update lastUpdated timestamp",
+        "Write merged state to file"
+      ]
+    },
+    {
+      "name": "reset",
+      "description": "Reset workgroup state to initial",
+      "steps": [
+        "Create fresh state object with workgroupId",
+        "Set status to 'initialized'",
+        "Clear all task arrays",
+        "Write to state file"
+      ]
+    }
+  ],
+  "stateSchema": {
+    "workgroupId": "WorkGroup identifier",
+    "status": "initialized | planning | executing | blocked | completed | failed",
+    "currentCycle": "Current execution cycle number (1-based)",
+    "completedTasks": "Array of completed task IDs",
+    "pendingTasks": "Array of pending task IDs with dependencies",
+    "blockers": "Array of blocking issues",
+    "lastUpdated": "ISO timestamp of last update",
+    "metadata": "Optional additional context"
+  },
+  "storagePath": "knowz/state/{workgroupId}.json",
+  "constraints": {
+    "concurrency": "Only orchestrator should write state. Subagents return data to orchestrator for state updates."
+  },
+  "errors": {
+    "invalid_operation": {
+      "code": "WGS001",
+      "action": "return_error",
+      "recovery": "Valid operations: read, write, update, reset"
+    },
+    "workgroup_id_empty": {
+      "code": "WGS002",
+      "action": "return_error",
+      "recovery": "Provide a valid workgroupId"
+    },
+    "state_data_required": {
+      "code": "WGS003",
+      "action": "return_error",
+      "recovery": "Provide stateData for write/update operations"
+    },
+    "state_file_not_found": {
+      "code": "WGS004",
+      "action": "return_blocked",
+      "recovery": "Use 'reset' operation to create initial state"
+    },
+    "invalid_state_schema": {
+      "code": "WGS005",
+      "action": "return_error",
+      "recovery": "stateData must match workgroup state schema"
+    },
+    "directory_not_found": {
+      "code": "WGS006",
+      "action": "return_blocked",
+      "recovery": "Create knowz/state/ directory"
+    },
+    "write_failed": {
+      "code": "WGS007",
+      "action": "return_error",
+      "recovery": "Check write permissions for knowz/state/ directory"
+    },
+    "concurrent_write_conflict": {
+      "code": "WGS008",
+      "action": "return_blocked",
+      "recovery": "Another process is writing - retry after brief delay"
+    }
+  }
+}

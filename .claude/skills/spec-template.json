@@ -1,0 +1,138 @@
+{
+  "name": "spec-template",
+  "version": "3.0.0",
+  "description": "Create 8-section spec files following the Knowz specification format. Ensures consistent, complete specifications for all workgroups.",
+  "parameters": [
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": true,
+      "description": "The WorkGroupID for the spec"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "description": "Human-readable title for the spec"
+    },
+    {
+      "name": "author",
+      "type": "string",
+      "required": false,
+      "description": "Author name (default: 'Knowz Agent')"
+    }
+  ],
+  "actions": [
+    {
+      "name": "createSpec",
+      "description": "Generate a new 8-section spec file",
+      "outputPath": "knowz/specs/{workgroupId}.md",
+      "steps": [
+        "Generate spec header with metadata",
+        "Create all 8 sections with placeholders",
+        "Add section guidance comments",
+        "Write to specs directory"
+      ]
+    },
+    {
+      "name": "validateSections",
+      "description": "Ensure all 8 sections are present",
+      "requiredSections": [
+        "Overview",
+        "Goals",
+        "Non-Goals",
+        "Technical Approach",
+        "Implementation Plan",
+        "Testing Strategy",
+        "Dependencies",
+        "Open Questions"
+      ]
+    }
+  ],
+  "template": {
+    "sections": [
+      {
+        "number": 1,
+        "name": "Overview",
+        "description": "Brief summary of what this workgroup accomplishes",
+        "guidance": "2-3 paragraphs explaining the purpose and context"
+      },
+      {
+        "number": 2,
+        "name": "Goals",
+        "description": "Specific, measurable objectives",
+        "guidance": "Bullet list of concrete deliverables"
+      },
+      {
+        "number": 3,
+        "name": "Non-Goals",
+        "description": "Explicitly out of scope items",
+        "guidance": "What this spec intentionally does NOT cover"
+      },
+      {
+        "number": 4,
+        "name": "Technical Approach",
+        "description": "How the goals will be achieved",
+        "guidance": "Architecture decisions, patterns, technologies"
+      },
+      {
+        "number": 5,
+        "name": "Implementation Plan",
+        "description": "Step-by-step execution plan",
+        "guidance": "Ordered tasks with estimates and dependencies"
+      },
+      {
+        "number": 6,
+        "name": "Testing Strategy",
+        "description": "How correctness will be verified",
+        "guidance": "Unit tests, integration tests, manual verification"
+      },
+      {
+        "number": 7,
+        "name": "Dependencies",
+        "description": "External requirements and blockers",
+        "guidance": "Other workgroups, external APIs, infrastructure"
+      },
+      {
+        "number": 8,
+        "name": "Open Questions",
+        "description": "Unresolved items needing discussion",
+        "guidance": "Questions that need answers before or during implementation"
+      }
+    ]
+  },
+  "outputFormat": "markdown",
+  "specsDirectory": "knowz/specs/",
+  "errors": {
+    "workgroup_id_empty": {
+      "code": "TPL001",
+      "action": "return_error",
+      "recovery": "Provide a valid workgroupId"
+    },
+    "title_empty": {
+      "code": "TPL002",
+      "action": "return_error",
+      "recovery": "Provide a human-readable title for the spec"
+    },
+    "spec_exists": {
+      "code": "TPL003",
+      "action": "return_blocked",
+      "recovery": "Spec already exists at knowz/specs/{workgroupId}.md - use update instead"
+    },
+    "directory_not_found": {
+      "code": "TPL004",
+      "action": "return_blocked",
+      "recovery": "Create knowz/specs/ directory"
+    },
+    "write_failed": {
+      "code": "TPL005",
+      "action": "return_error",
+      "recovery": "Check write permissions for knowz/specs/ directory"
+    },
+    "invalid_workgroup_format": {
+      "code": "TPL006",
+      "action": "return_error",
+      "recovery": "WorkGroupID must match pattern: {CATEGORY}-{slug}-{number}"
+    }
+  }
+}

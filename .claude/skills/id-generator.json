@@ -1,0 +1,123 @@
+{
+  "name": "id-generator",
+  "version": "3.0.0",
+  "description": "Create WorkGroupID identifiers. Renamed from generate-workgroup-id for consistency. Generates unique, meaningful IDs for workgroups.",
+  "parameters": [
+    {
+      "name": "category",
+      "type": "string",
+      "required": true,
+      "description": "Category prefix: 'FEAT', 'FIX', 'REFACTOR', 'INFRA', 'DOCS', 'TEST'"
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": true,
+      "description": "Brief description for ID suffix generation"
+    },
+    {
+      "name": "parentId",
+      "type": "string",
+      "required": false,
+      "description": "Parent WorkGroupID for sub-workgroups"
+    }
+  ],
+  "actions": [
+    {
+      "name": "generate",
+      "description": "Generate a new WorkGroupID",
+      "steps": [
+        "Validate category prefix",
+        "Create slug from description",
+        "Generate unique numeric suffix",
+        "Check for ID collisions in tracker",
+        "Return formatted WorkGroupID"
+      ],
+      "format": "{CATEGORY}-{slug}-{number}"
+    },
+    {
+      "name": "generateChild",
+      "description": "Generate child workgroup ID",
+      "steps": [
+        "Validate parentId exists",
+        "Inherit category from parent",
+        "Create child slug",
+        "Append child suffix to parent ID"
+      ],
+      "format": "{parentId}.{childSlug}"
+    },
+    {
+      "name": "validate",
+      "description": "Validate WorkGroupID format",
+      "rules": [
+        "Must start with valid category prefix",
+        "Slug contains only alphanumeric and hyphens",
+        "Number suffix is 3+ digits",
+        "Total length under 50 characters"
+      ]
+    },
+    {
+      "name": "parseId",
+      "description": "Parse components from existing ID",
+      "output": {
+        "category": "Extracted category prefix",
+        "slug": "Extracted slug",
+        "number": "Extracted numeric suffix",
+        "parent": "Parent ID if child workgroup"
+      }
+    }
+  ],
+  "categories": {
+    "FEAT": "New feature implementation",
+    "FIX": "Bug fix or correction",
+    "REFACTOR": "Code restructuring without behavior change",
+    "INFRA": "Infrastructure and DevOps changes",
+    "DOCS": "Documentation updates",
+    "TEST": "Test coverage improvements"
+  },
+  "idFormat": {
+    "pattern": "^(FEAT|FIX|REFACTOR|INFRA|DOCS|TEST)-[a-z0-9-]+-[0-9]{3,}$",
+    "examples": [
+      "FEAT-user-auth-001",
+      "FIX-login-timeout-042",
+      "REFACTOR-api-client-003",
+      "INFRA-ci-pipeline-007"
+    ]
+  },
+  "collision": {
+    "checkPath": "knowz/tracker.md",
+    "strategy": "increment numeric suffix until unique"
+  },
+  "errors": {
+    "invalid_category": {
+      "code": "IDG001",
+      "action": "return_error",
+      "recovery": "Valid categories: FEAT, FIX, REFACTOR, INFRA, DOCS, TEST"
+    },
+    "description_empty": {
+      "code": "IDG002",
+      "action": "return_error",
+      "recovery": "Provide a brief description for ID generation"
+    },
+    "parent_not_found": {
+      "code": "IDG003",
+      "action": "return_error",
+      "recovery": "Verify parentId exists in knowz/tracker.md"
+    },
+    "tracker_not_found": {
+      "code": "IDG004",
+      "action": "return_blocked",
+      "recovery": "Create knowz/tracker.md for collision checking"
+    },
+    "id_format_invalid": {
+      "code": "IDG005",
+      "action": "return_error",
+      "recovery": "ID must match pattern: {CATEGORY}-{slug}-{number}"
+    },
+    "collision_max_retries": {
+      "code": "IDG006",
+      "action": "return_error",
+      "recovery": "Too many ID collisions, use different description"
+    }
+  }
+}

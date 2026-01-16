@@ -1,0 +1,136 @@
+{
+  "name": "markdown-parser",
+  "version": "1.0.0",
+  "description": "Parse markdown workgroup/spec files to JSON state and vice versa. Enables NLP input conversion to structured data.",
+
+  "capabilities": [
+    "markdown_to_json",
+    "json_to_markdown",
+    "nlp_to_structured",
+    "extract_keywords",
+    "generate_slug"
+  ],
+
+  "parsing_rules": {
+    "workgroup": {
+      "markdown_to_json": {
+        "# WorkGroup: {title}": "title",
+        "**ID:** `{value}`": "workgroup_id",
+        "**Created:** {value}": "created_at",
+        "**Status:** {phase} - {status}": ["current_phase", "status"],
+        "## Goal\\n{content}": "primary_goal",
+        "## Keywords\\n{content}": "keywords",
+        "## Requirements\\n{bullets}": "requirements",
+        "## Decisions\\n### Decision {n}: {title}": "decisions[]",
+        "## Blockers\\n### Blocker {n}: {title}": "blockers[]"
+      },
+      "json_to_markdown": {
+        "title": "# WorkGroup: {value}",
+        "workgroup_id": "**ID:** `{value}`",
+        "created_at": "**Created:** {value}",
+        "primary_goal": "## Goal\\n\\n{value}",
+        "keywords": "## Keywords\\n\\n{value as comma-separated}",
+        "requirements": "## Requirements\\n\\n{value as bullet list}"
+      }
+    },
+    "spec": {
+      "markdown_to_json": {
+        "# Node Specification: {name}": "spec_id",
+        "**Version:** {value}": "version",
+        "**Date:** {value}": "created_at",
+        "## 1. Purpose\\n{content}": "purpose",
+        "## 2. Dependencies & Triggers\\n{content}": "dependencies",
+        "## 3. Interfaces\\n{content}": "interfaces",
+        "## 4. Core Logic & Processing Steps\\n{content}": "logic",
+        "## 5. Data Structures\\n{content}": "data_structures"
+      }
+    }
+  },
+
+  "slug_generation": {
+    "stop_words": ["the", "a", "an", "to", "for", "with", "and", "of", "in", "on", "at", "by", "is", "it"],
+    "max_words": 5,
+    "min_words": 2,
+    "separator": "-",
+    "lowercase": true,
+    "rules": [
+      "Extract nouns and verbs from input",
+      "Remove stop words",
+      "Prioritize: technologies, actions, components",
+      "Truncate to max_words",
+      "Join with separator"
+    ],
+    "examples": [
+      {
+        "input": "Implement user authentication with OAuth2",
+        "output": "user-auth-oauth2"
+      },
+      {
+        "input": "Add pagination to the API endpoints",
+        "output": "api-pagination"
+      },
+      {
+        "input": "Configure custom domains for Azure Front Door",
+        "output": "azure-custom-domains"
+      },
+      {
+        "input": "Fix the login button not working on mobile",
+        "output": "fix-login-button-mobile"
+      }
+    ]
+  },
+
+  "keyword_extraction": {
+    "strategies": [
+      "Named entities (technologies, services, components)",
+      "Action verbs (implement, add, fix, configure, refactor)",
+      "Domain terms (api, database, auth, ui, backend)",
+      "Modifiers (async, real-time, secure, fast)"
+    ],
+    "max_keywords": 10,
+    "min_relevance": 0.5
+  },
+
+  "nlp_to_structured": {
+    "description": "Convert natural language goal description to structured workgroup/spec",
+    "process": [
+      "1. Parse input for intent (feature, bugfix, refactor, config)",
+      "2. Extract primary goal statement",
+      "3. Identify requirements from context clues",
+      "4. Generate slug from goal",
+      "5. Extract keywords",
+      "6. Estimate complexity from scope indicators",
+      "7. Output both markdown and JSON formats"
+    ],
+    "intent_patterns": {
+      "feature": ["implement", "add", "create", "build", "develop"],
+      "bugfix": ["fix", "resolve", "repair", "patch", "correct"],
+      "refactor": ["refactor", "restructure", "reorganize", "clean up", "improve"],
+      "config": ["configure", "setup", "set up", "enable", "deploy"]
+    }
+  },
+
+  "validation": {
+    "required_fields": {
+      "workgroup": ["workgroup_id", "title", "primary_goal", "created_at"],
+      "spec": ["spec_id", "purpose", "dependencies"]
+    },
+    "optional_fields": {
+      "workgroup": ["keywords", "requirements", "decisions", "blockers"],
+      "spec": ["version", "interfaces", "logic", "data_structures"]
+    }
+  },
+
+  "output_formats": {
+    "markdown": {
+      "extension": ".md",
+      "template": "WORKGROUP_TEMPLATE.md"
+    },
+    "json": {
+      "extension": ".json",
+      "template": "STATE_TEMPLATE.json",
+      "pretty_print": true,
+      "indent": 2
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "$schema": "STATE_TEMPLATE",
+  "$version": "1.1.0",
+  "$description": "Template for workgroup state files. Copy this file and rename to STATE.json for each workgroup.",
+
+  "workgroup_id": "wg-{YYYYMMDD}-{slug}",
+  "slug": "{3-5-word-kebab-case-from-goal}",
+  "title": "{Human readable title from goal}",
+  "created_at": "{ISO_TIMESTAMP}",
+  "updated_at": "{ISO_TIMESTAMP}",
+
+  "primary_goal": "{One sentence describing the workgroup's primary objective}",
+  "keywords": ["{extracted}", "{searchable}", "{terms}"],
+
+  "current_phase": "1|2a|2b|3",
+  "current_cycle": 0,
+
+  "phases_completed": {
+    "phase_1_planning": false,
+    "phase_2a_implementation": false,
+    "phase_2b_integration": false,
+    "phase_3_validation": false
+  },
+
+  "phases": {
+    "1": {
+      "name": "Planning",
+      "status": "pending|in_progress|complete",
+      "started_at": null,
+      "completed_at": null,
+      "outputs": {
+        "dependency_graph": null,
+        "cycle_plan": null,
+        "specs_generated": []
+      }
+    },
+    "2a": {
+      "name": "Implementation",
+      "status": "pending|in_progress|complete",
+      "started_at": null,
+      "completed_at": null,
+      "total_cycles": 0,
+      "cycles_completed": 0
+    },
+    "2b": {
+      "name": "Integration",
+      "status": "pending|in_progress|complete",
+      "started_at": null,
+      "completed_at": null,
+      "integration_tests_passing": false
+    },
+    "3": {
+      "name": "Validation",
+      "status": "pending|in_progress|complete",
+      "started_at": null,
+      "completed_at": null,
+      "validation_report": null
+    }
+  },
+
+  "cycles": {
+    "1": {
+      "status": "pending|in_progress|complete|blocked",
+      "started_at": null,
+      "completed_at": null,
+      "nodes": {
+        "{node_id}": {
+          "status": "pending|in_progress|success|failure|blocked|skipped",
+          "assigned_at": null,
+          "completed_at": null,
+          "result": null,
+          "retries": 0
+        }
+      },
+      "summary": {
+        "total_nodes": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "blocked": 0,
+        "skipped": 0
+      }
+    }
+  },
+
+  "nodes": {
+    "{node_id}": {
+      "spec_path": "{absolute_path_to_spec}",
+      "cycle": 0,
+      "dependencies": [],
+      "dependents": [],
+      "status": "pending|in_progress|success|failure|blocked",
+      "implementation": {
+        "files_created": [],
+        "files_modified": [],
+        "commits": []
+      },
+      "tests": {
+        "written": 0,
+        "passing": 0,
+        "failing": 0
+      }
+    }
+  },
+
+  "decisions": [
+    {
+      "id": "decision-{number}",
+      "timestamp": "{ISO_TIMESTAMP}",
+      "phase": "1|2a|2b|3",
+      "cycle": null,
+      "type": "architecture|implementation|trade-off|scope",
+      "description": "{What was decided}",
+      "rationale": "{Why this decision was made}",
+      "impact": "{What this affects}",
+      "reversible": true
+    }
+  ],
+
+  "blockers": [
+    {
+      "id": "blocker-{number}",
+      "created_at": "{ISO_TIMESTAMP}",
+      "resolved_at": null,
+      "phase": "1|2a|2b|3",
+      "cycle": null,
+      "node_id": null,
+      "type": "dependency|spec_unclear|external|technical|resource",
+      "severity": "blocking|warning",
+      "description": "{What is blocking progress}",
+      "resolution": null,
+      "status": "open|resolved|deferred"
+    }
+  ],
+
+  "metrics": {
+    "total_nodes": 0,
+    "nodes_completed": 0,
+    "total_tests": 0,
+    "tests_passing": 0,
+    "total_commits": 0,
+    "estimated_completion": null
+  },
+
+  "configuration": {
+    "max_tasks_per_cycle": 5,
+    "max_retries_per_node": 1,
+    "require_all_tests_pass": true,
+    "auto_proceed_on_partial_success": false
+  }
+}

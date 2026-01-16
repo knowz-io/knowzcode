@@ -1,0 +1,72 @@
+{
+  "name": "checkpoint-validator",
+  "version": "0.3.0",
+  "description": "Validate checkpoints before phase transitions. Blocks execution if gates fail.",
+  "parameters": [
+    {
+      "name": "gate_type",
+      "type": "string",
+      "enum": ["workgroup", "phase_sequence", "spec_quality", "audit", "tests", "ship"],
+      "required": true
+    },
+    {
+      "name": "workgroup_id",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "target_phase",
+      "type": "string",
+      "required": false
+    }
+  ],
+  "policy_reference": ".claude/rules/enforcement-policy.yaml",
+  "thresholds_reference": ".claude/rules/checkpoints.md",
+  "actions": {
+    "workgroup": {
+      "check": "state file exists and status not complete/archived",
+      "output": { "valid": "boolean", "reason": "string" }
+    },
+    "phase_sequence": {
+      "check": "target_phase follows current_phase in sequence",
+      "output": { "valid": "boolean", "current_phase": "string", "skipped_phases": "array" }
+    },
+    "spec_quality": {
+      "check": "score >= policy.checkpoints.spec.min_score",
+      "output": { "valid": "boolean", "score": "number", "threshold": "number" }
+    },
+    "audit": {
+      "check": "verdict meets require_verdict AND completion >= min_completion",
+      "output": { "valid": "boolean", "verdict": "string", "completion": "number" }
+    },
+    "tests": {
+      "check": "all tests pass AND coverage meets thresholds",
+      "output": { "valid": "boolean", "passing": "number", "failing": "number", "coverage": "object" }
+    },
+    "ship": {
+      "check": "audit AND tests AND spec_updated AND branch_ok",
+      "output": { "valid": "boolean", "failed_gates": "array" }
+    }
+  },
+  "enforcement_flow": [
+    "1. Load policy from policy_reference",
+    "2. Run gate check",
+    "3. If FAIL: check pre_authorized_bypasses",
+    "4. If bypassed: log and proceed",
+    "5. If NOT bypassed: STOP, display warning, wait for override"
+  ],
+  "constraints": {
+    "must_load_policy": true,
+    "must_check_pre_authorized": true,
+    "must_log_all_bypasses": true
+  },
+  "errors": {
+    "CHK001": { "name": "policy_not_found", "action": "blocked" },
+    "CHK002": { "name": "policy_parse_error", "action": "error" },
+    "CHK003": { "name": "workgroup_not_found", "action": "blocked" },
+    "CHK004": { "name": "audit_not_found", "action": "blocked" },
+    "CHK005": { "name": "invalid_gate_type", "action": "error" },
+    "CHK007": { "name": "tests_failed", "action": "blocked" },
+    "CHK008": { "name": "coverage_low", "action": "warn" }
+  }
+}

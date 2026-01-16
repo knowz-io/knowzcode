@@ -1,0 +1,23 @@
+{
+  "name": "mcp-manager",
+  "description": "Delegate MCP operations to isolated subagent to prevent context pollution",
+  "version": "1.2.0",
+  "parameters": {
+    "task": {
+      "type": "string",
+      "description": "Description of the MCP operation to perform",
+      "required": true
+    },
+    "mcp_server": {
+      "type": "string",
+      "description": "Target MCP server name (must be registered with Claude)",
+      "required": true
+    }
+  },
+  "execution": {
+    "type": "subagent",
+    "max_response_tokens": 800
+  },
+  "recommended_servers": ["knowz", "playwright", "github", "sentry"],
+  "artifacts_path": ".knowz/artifacts/"
+}

@@ -1,0 +1,192 @@
+{
+  "name": "knowz",
+  "version": "0.1.0",
+  "description": "Knowz - Lean orchestrator with context protection, cycle execution, and MCP isolation",
+  "author": "Alex",
+  "repository": "https://github.com/knowz-io/knowz",
+  "license": "MIT",
+  "homepage": "https://knowz.io",
+  "commands": [
+    {
+      "name": "/k:init",
+      "description": "Initialize Knowz project structure in current repository",
+      "file": "commands/k-init.md"
+    },
+    {
+      "name": "/k:work",
+      "description": "Start a new WorkGroup with a defined goal",
+      "file": "commands/k-work.md"
+    },
+    {
+      "name": "/k:spec",
+      "description": "Draft and refine specifications for the current WorkGroup",
+      "file": "commands/k-spec.md"
+    },
+    {
+      "name": "/k:plan",
+      "description": "Create execution plan with parallelizable task cycles",
+      "file": "commands/k-plan.md"
+    },
+    {
+      "name": "/k:execute",
+      "description": "Execute planned tasks using parallel subagent cycles",
+      "file": "commands/k-execute.md"
+    },
+    {
+      "name": "/k:audit",
+      "description": "Perform completeness audit on implemented changes",
+      "file": "commands/k-audit.md"
+    },
+    {
+      "name": "/k:finalize",
+      "description": "Update as-built specifications and commit changes",
+      "file": "commands/k-finalize.md"
+    },
+    {
+      "name": "/k:continue",
+      "description": "Resume work from saved WorkGroup state",
+      "file": "commands/k-continue.md"
+    },
+    {
+      "name": "/k:scan",
+      "description": "Perform brownfield codebase analysis generating 7 documents",
+      "file": "commands/k-scan.md"
+    },
+    {
+      "name": "/k:fix",
+      "description": "Quick micro-fix for single-file or small changes",
+      "file": "commands/k-fix.md"
+    },
+    {
+      "name": "/k:mcp",
+      "description": "Manual MCP delegation command for isolated MCP operations",
+      "file": "commands/k-mcp.md"
+    }
+  ],
+  "agents": [
+    {
+      "name": "k-orchestrator",
+      "description": "Lean orchestrator for Knowz v3 workflow coordination",
+      "file": "agents/k-orchestrator.md"
+    },
+    {
+      "name": "k-impact-analyst",
+      "description": "Discover phase agent for impact analysis",
+      "file": "agents/k-impact-analyst.md"
+    },
+    {
+      "name": "k-spec-chief",
+      "description": "Design phase agent for specification generation",
+      "file": "agents/k-spec-chief.md"
+    },
+    {
+      "name": "k-impl-agent",
+      "description": "Single-node implementation agent with TDD",
+      "file": "agents/k-impl-agent.md"
+    },
+    {
+      "name": "k-arc-auditor",
+      "description": "Check phase agent for completeness audit (READ-ONLY)",
+      "file": "agents/k-arc-auditor.md"
+    },
+    {
+      "name": "k-finalization",
+      "description": "Ship phase agent for finalization",
+      "file": "agents/k-finalization.md"
+    },
+    {
+      "name": "k-scan-agent",
+      "description": "Brownfield codebase analysis agent",
+      "file": "agents/k-scan-agent.md"
+    },
+    {
+      "name": "k-parallel-planner",
+      "description": "Dependency analysis and parallel execution planning agent",
+      "file": "agents/k-parallel-planner.md"
+    },
+    {
+      "name": "k-mcp-agent",
+      "description": "Isolated MCP operations agent",
+      "file": "agents/k-mcp-agent.md"
+    }
+  ],
+  "skills": [
+    {
+      "name": "context-loader",
+      "description": "Load context from knowz/ files",
+      "file": "skills/context-loader.json"
+    },
+    {
+      "name": "workgroup-state",
+      "description": "Manage WorkGroup state",
+      "file": "skills/workgroup-state.json"
+    },
+    {
+      "name": "parallel-planner",
+      "description": "Plan parallel execution groups",
+      "file": "skills/parallel-planner.json"
+    },
+    {
+      "name": "checkpoint-validator",
+      "description": "Validate checkpoints and enforcement policy",
+      "file": "skills/checkpoint-validator.json"
+    },
+    {
+      "name": "tracker-update",
+      "description": "Update tracker status",
+      "file": "skills/tracker-update.json"
+    },
+    {
+      "name": "spec-template",
+      "description": "Generate specification templates",
+      "file": "skills/spec-template.json"
+    },
+    {
+      "name": "spec-validator",
+      "description": "Validate specification quality",
+      "file": "skills/spec-validator.json"
+    },
+    {
+      "name": "log-builder",
+      "description": "Build log entries",
+      "file": "skills/log-builder.json"
+    },
+    {
+      "name": "todo-manager",
+      "description": "Manage todo items",
+      "file": "skills/todo-manager.json"
+    },
+    {
+      "name": "architecture-diff",
+      "description": "Diff architecture changes",
+      "file": "skills/architecture-diff.json"
+    },
+    {
+      "name": "id-generator",
+      "description": "Generate unique identifiers",
+      "file": "skills/id-generator.json"
+    },
+    {
+      "name": "mcp-manager",
+      "description": "Manage MCP operations",
+      "file": "skills/mcp-manager.json"
+    },
+    {
+      "name": "markdown-parser",
+      "description": "Parse markdown to JSON and vice versa, generate slugs and keywords from NLP input",
+      "file": "skills/markdown-parser.json"
+    }
+  ],
+  "config": {
+    "context_budget": 30000,
+    "max_tasks_per_cycle": 5,
+    "return_contract_max_tokens": 1000,
+    "checkpoints": {
+      "spec_min_score": 70,
+      "audit_min_completion": 90,
+      "contract_validation": true
+    },
+    "execution_modes": ["auto", "guided", "step"],
+    "default_mode": "guided"
+  }
+}

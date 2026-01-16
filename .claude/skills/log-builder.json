@@ -1,0 +1,115 @@
+{
+  "name": "log-builder",
+  "version": "3.0.0",
+  "description": "Format log entries for workgroup activity tracking. Renamed from log-entry-builder for consistency. Creates structured, searchable log entries.",
+  "parameters": [
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": true,
+      "description": "The WorkGroupID for the log entry"
+    },
+    {
+      "name": "entryType",
+      "type": "string",
+      "required": true,
+      "description": "Type of log entry: 'progress', 'decision', 'blocker', 'resolution', 'review', 'completion'"
+    },
+    {
+      "name": "content",
+      "type": "string",
+      "required": true,
+      "description": "The log entry content"
+    },
+    {
+      "name": "metadata",
+      "type": "object",
+      "required": false,
+      "description": "Optional metadata (files changed, tests affected, etc.)"
+    }
+  ],
+  "actions": [
+    {
+      "name": "createEntry",
+      "description": "Create a formatted log entry",
+      "steps": [
+        "Generate timestamp in ISO format",
+        "Format entry with type prefix",
+        "Include metadata if provided",
+        "Append to workgroup log file"
+      ],
+      "outputPath": "knowz/logs/{workgroupId}.md"
+    },
+    {
+      "name": "formatProgress",
+      "description": "Format a progress update entry",
+      "template": "## [{timestamp}] PROGRESS\n\n{content}\n\n**Files:** {files}\n**Status:** {status}"
+    },
+    {
+      "name": "formatDecision",
+      "description": "Format a decision record entry",
+      "template": "## [{timestamp}] DECISION\n\n**Decision:** {content}\n\n**Rationale:** {rationale}\n\n**Alternatives Considered:** {alternatives}"
+    },
+    {
+      "name": "formatBlocker",
+      "description": "Format a blocker entry",
+      "template": "## [{timestamp}] BLOCKER\n\n**Issue:** {content}\n\n**Impact:** {impact}\n\n**Proposed Resolution:** {resolution}"
+    },
+    {
+      "name": "formatResolution",
+      "description": "Format a resolution entry",
+      "template": "## [{timestamp}] RESOLUTION\n\n**Resolved:** {content}\n\n**Solution:** {solution}\n\n**Related Blocker:** {blockerId}"
+    },
+    {
+      "name": "formatReview",
+      "description": "Format a review feedback entry",
+      "template": "## [{timestamp}] REVIEW\n\n**Reviewer:** {reviewer}\n\n**Feedback:** {content}\n\n**Action Items:** {actionItems}"
+    },
+    {
+      "name": "formatCompletion",
+      "description": "Format a completion entry",
+      "template": "## [{timestamp}] COMPLETION\n\n**Summary:** {content}\n\n**Deliverables:** {deliverables}\n\n**Tests Passing:** {testStatus}"
+    }
+  ],
+  "entryTypes": {
+    "progress": "Regular progress updates during implementation",
+    "decision": "Architectural or implementation decisions made",
+    "blocker": "Issues preventing progress",
+    "resolution": "Blocker resolutions",
+    "review": "Code or spec review feedback",
+    "completion": "Task or workgroup completion"
+  },
+  "logsDirectory": "knowz/logs/",
+  "errors": {
+    "invalid_entry_type": {
+      "code": "LOG001",
+      "action": "return_error",
+      "recovery": "Valid types: progress, decision, blocker, resolution, review, completion"
+    },
+    "workgroup_not_found": {
+      "code": "LOG002",
+      "action": "return_error",
+      "recovery": "Verify workgroupId exists in knowz/tracker.md"
+    },
+    "content_empty": {
+      "code": "LOG003",
+      "action": "return_error",
+      "recovery": "Provide content for the log entry"
+    },
+    "log_directory_not_found": {
+      "code": "LOG004",
+      "action": "return_blocked",
+      "recovery": "Create knowz/logs/ directory"
+    },
+    "log_write_failed": {
+      "code": "LOG005",
+      "action": "return_error",
+      "recovery": "Check write permissions for knowz/logs/ directory"
+    },
+    "metadata_invalid": {
+      "code": "LOG006",
+      "action": "return_error",
+      "recovery": "Metadata must be a valid JSON object"
+    }
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "name": "test-runner",
+  "version": "1.0.0",
+  "description": "Execute tests with framework auto-detection. Supports unit tests, integration tests, and coverage reporting.",
+  "parameters": [
+    {
+      "name": "scope",
+      "type": "string",
+      "required": false,
+      "description": "Test scope: 'all' (full suite), 'affected' (changed files only), 'path' (specific path)",
+      "default": "all"
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "required": false,
+      "description": "Specific test file or directory to run (when scope='path')"
+    },
+    {
+      "name": "coverage",
+      "type": "boolean",
+      "required": false,
+      "description": "Generate coverage report",
+      "default": false
+    },
+    {
+      "name": "watch",
+      "type": "boolean",
+      "required": false,
+      "description": "Run tests in watch mode",
+      "default": false
+    },
+    {
+      "name": "verbose",
+      "type": "boolean",
+      "required": false,
+      "description": "Verbose output",
+      "default": false
+    }
+  ],
+  "frameworkDetection": {
+    "priority": [
+      "package.json",
+      "pyproject.toml",
+      "Cargo.toml",
+      "go.mod",
+      "pom.xml",
+      "build.gradle"
+    ],
+    "frameworks": {
+      "jest": {
+        "detect": ["jest.config.js", "jest.config.ts", "jest.config.json"],
+        "packageJson": "jest",
+        "commands": {
+          "all": "npx jest",
+          "affected": "npx jest --onlyChanged",
+          "coverage": "npx jest --coverage",
+          "watch": "npx jest --watch"
+        }
+      },
+      "vitest": {
+        "detect": ["vitest.config.js", "vitest.config.ts", "vite.config.ts"],
+        "packageJson": "vitest",
+        "commands": {
+          "all": "npx vitest run",
+          "affected": "npx vitest run --changed",
+          "coverage": "npx vitest run --coverage",
+          "watch": "npx vitest"
+        }
+      },
+      "mocha": {
+        "detect": [".mocharc.js", ".mocharc.json", "mocha.opts"],
+        "packageJson": "mocha",
+        "commands": {
+          "all": "npx mocha",
+          "coverage": "npx nyc mocha"
+        }
+      },
+      "pytest": {
+        "detect": ["pytest.ini", "pyproject.toml", "setup.cfg"],
+        "marker": "[tool.pytest]",
+        "commands": {
+          "all": "pytest",
+          "affected": "pytest --lf",
+          "coverage": "pytest --cov",
+          "verbose": "pytest -v"
+        }
+      },
+      "unittest": {
+        "detect": ["tests/__init__.py"],
+        "commands": {
+          "all": "python -m unittest discover",
+          "coverage": "coverage run -m unittest discover"
+        }
+      },
+      "go": {
+        "detect": ["go.mod"],
+        "filePattern": "*_test.go",
+        "commands": {
+          "all": "go test ./...",
+          "coverage": "go test -cover ./...",
+          "verbose": "go test -v ./..."
+        }
+      },
+      "cargo": {
+        "detect": ["Cargo.toml"],
+        "commands": {
+          "all": "cargo test",
+          "coverage": "cargo tarpaulin",
+          "verbose": "cargo test -- --nocapture"
+        }
+      },
+      "maven": {
+        "detect": ["pom.xml"],
+        "commands": {
+          "all": "mvn test",
+          "coverage": "mvn test jacoco:report"
+        }
+      },
+      "gradle": {
+        "detect": ["build.gradle", "build.gradle.kts"],
+        "commands": {
+          "all": "gradle test",
+          "coverage": "gradle test jacocoTestReport"
+        }
+      },
+      "dotnet": {
+        "detect": ["*.csproj", "*.sln"],
+        "commands": {
+          "all": "dotnet test",
+          "coverage": "dotnet test --collect:\"XPlat Code Coverage\""
+        }
+      },
+      "bun": {
+        "detect": ["bun.lockb", "bunfig.toml"],
+        "commands": {
+          "all": "bun test",
+          "coverage": "bun test --coverage",
+          "watch": "bun test --watch"
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "name": "detectFramework",
+      "description": "Auto-detect test framework from project files",
+      "steps": [
+        "Check for framework config files in priority order",
+        "Parse package.json for test dependencies",
+        "Return detected framework and commands"
+      ]
+    },
+    {
+      "name": "runTests",
+      "description": "Execute tests with appropriate command",
+      "steps": [
+        "Detect framework if not specified",
+        "Build command based on scope and options",
+        "Execute test command",
+        "Parse and return results"
+      ]
+    },
+    {
+      "name": "parseResults",
+      "description": "Parse test output into structured format",
+      "output": {
+        "total": "number",
+        "passed": "number",
+        "failed": "number",
+        "skipped": "number",
+        "duration_ms": "number",
+        "failures": [
+          {
+            "test": "string",
+            "file": "string",
+            "error": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "getCoverage",
+      "description": "Extract coverage metrics from report",
+      "output": {
+        "line": "number (0-100)",
+        "branch": "number (0-100)",
+        "function": "number (0-100)",
+        "uncovered_files": ["string"]
+      }
+    }
+  ],
+  "output": {
+    "success": "boolean",
+    "framework": "string",
+    "command": "string",
+    "results": {
+      "total": "number",
+      "passed": "number",
+      "failed": "number",
+      "skipped": "number",
+      "duration_ms": "number"
+    },
+    "coverage": {
+      "line": "number",
+      "branch": "number",
+      "function": "number"
+    },
+    "failures": [
+      {
+        "test": "string",
+        "file": "string",
+        "line": "number",
+        "error": "string"
+      }
+    ]
+  },
+  "thresholds": {
+    "coverage": {
+      "line": 70,
+      "branch": 60,
+      "function": 80
+    },
+    "enforcement": "warn"
+  },
+  "errors": {
+    "no_framework_detected": {
+      "code": "TEST001",
+      "action": "prompt_user",
+      "message": "No test framework detected. Specify test command manually."
+    },
+    "test_command_failed": {
+      "code": "TEST002",
+      "action": "return_failure",
+      "message": "Test command failed to execute"
+    },
+    "coverage_below_threshold": {
+      "code": "TEST003",
+      "action": "warn",
+      "message": "Coverage below required threshold"
+    }
+  }
+}

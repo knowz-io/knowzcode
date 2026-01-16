@@ -1,0 +1,115 @@
+{
+  "name": "context-loader",
+  "version": "3.0.0",
+  "description": "Simplified context loading for subagents. Loads only the files needed for a specific task, avoiding unnecessary context pollution.",
+  "parameters": [
+    {
+      "name": "taskType",
+      "type": "string",
+      "required": true,
+      "description": "Type of task: 'spec', 'code', 'test', 'review', 'debug'"
+    },
+    {
+      "name": "workgroupId",
+      "type": "string",
+      "required": true,
+      "description": "The WorkGroupID for context scoping"
+    },
+    {
+      "name": "additionalFiles",
+      "type": "array",
+      "required": false,
+      "description": "Optional list of additional file paths to include"
+    }
+  ],
+  "actions": [
+    {
+      "name": "loadMinimalContext",
+      "description": "Load only essential files based on task type",
+      "steps": [
+        "Identify task type from parameter",
+        "Load knowz/architecture/system-diagram.mmd for architectural context",
+        "Load knowz/tracker.md for current state",
+        "Load workgroup-specific spec if taskType is 'code' or 'test'",
+        "Skip unnecessary historical logs and completed specs"
+      ]
+    },
+    {
+      "name": "loadSpecContext",
+      "description": "Context for spec writing tasks",
+      "files": [
+        "knowz/architecture/system-diagram.mmd",
+        "knowz/tracker.md",
+        "knowz/specs/template.md"
+      ]
+    },
+    {
+      "name": "loadCodeContext",
+      "description": "Context for coding tasks",
+      "files": [
+        "knowz/architecture/system-diagram.mmd",
+        "knowz/specs/{workgroupId}.md",
+        "knowz/tracker.md"
+      ]
+    },
+    {
+      "name": "loadTestContext",
+      "description": "Context for testing tasks",
+      "files": [
+        "knowz/specs/{workgroupId}.md",
+        "knowz/tracker.md",
+        "src/**/*.test.ts"
+      ]
+    },
+    {
+      "name": "loadReviewContext",
+      "description": "Context for review tasks",
+      "files": [
+        "knowz/specs/{workgroupId}.md",
+        "knowz/architecture/system-diagram.mmd",
+        "knowz/logs/{workgroupId}.md"
+      ]
+    },
+    {
+      "name": "loadDebugContext",
+      "description": "Context for debugging tasks",
+      "files": [
+        "knowz/logs/{workgroupId}.md",
+        "knowz/specs/{workgroupId}.md",
+        "Related source files from error traces"
+      ]
+    }
+  ],
+  "notes": [
+    "Always prefer minimal context over comprehensive context",
+    "Subagents should request only what they need",
+    "Use additionalFiles sparingly for edge cases"
+  ],
+  "errors": {
+    "invalid_task_type": {
+      "code": "CTX001",
+      "action": "return_error",
+      "recovery": "Valid task types: spec, code, test, review, debug"
+    },
+    "workgroup_not_found": {
+      "code": "CTX002",
+      "action": "return_blocked",
+      "recovery": "Verify workgroupId exists in knowz/tracker.md"
+    },
+    "architecture_not_found": {
+      "code": "CTX003",
+      "action": "return_blocked",
+      "recovery": "Create knowz/architecture/system-diagram.mmd"
+    },
+    "spec_not_found": {
+      "code": "CTX004",
+      "action": "return_blocked",
+      "recovery": "Complete design phase to generate spec for workgroup"
+    },
+    "file_not_readable": {
+      "code": "CTX005",
+      "action": "return_error",
+      "recovery": "Check file permissions for requested additionalFiles"
+    }
+  }
+}

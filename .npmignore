@@ -1,0 +1,11 @@
+# Development files
+knowz/
+.git/
+.gitignore
+*.log
+.DS_Store
+Thumbs.db
+
+# Keep only what's needed for installation
+!bin/
+!.claude/

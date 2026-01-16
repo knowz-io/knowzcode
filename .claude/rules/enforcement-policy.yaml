@@ -1,0 +1,172 @@
+# Knowz Enforcement Policy Configuration
+# Version: 0.1.0
+#
+# This file controls active enforcement of checkpoints, phase sequencing,
+# and workflow rules. Gates BLOCK by default - agents will STOP and warn,
+# allowing user override after explicit confirmation.
+#
+# All bypasses (user override or pre-authorized) are logged to:
+# knowz/logs/enforcement.log
+
+version: "0.1.0"
+
+# ============================================================================
+# WORKGROUP ENFORCEMENT
+# ============================================================================
+workgroups:
+  require_active: true           # Commands require active WorkGroup
+  auto_create: false             # Don't auto-create, require explicit /k:work
+  # If require_active is true and no WorkGroup exists:
+  # → BLOCK with: "No active WorkGroup. Run /k:work first."
+
+# ============================================================================
+# PHASE SEQUENCING
+# ============================================================================
+phases:
+  enforce_sequence: true         # Phases must run in order
+  allow_skip: false              # Cannot skip phases
+  sequence:
+    - discover    # Understand problem and impact
+    - design      # Design the solution
+    - build       # Build the solution
+    - check       # Verify completeness
+    - ship        # Commit and release
+  # If out of sequence:
+  # → BLOCK with: "Cannot run {phase}. Complete {required_phase} first."
+
+# ============================================================================
+# CHECKPOINTS
+# ============================================================================
+checkpoints:
+  spec:
+    min_score: 70                # Minimum spec quality score (0-100)
+    blocking: true               # Block build phase if below threshold
+    bypass_allowed: true         # Can be overridden with explicit user approval
+    # If spec_score < min_score:
+    # → BLOCK with: "Spec quality {score}% below {threshold}% threshold."
+    # → Recommend: "Run /k:spec refine to improve quality"
+    # → User can override with explicit confirmation
+
+  audit:
+    min_completion: 90           # Minimum audit completion % (0-100)
+    blocking: true               # Block ship phase if below threshold
+    require_verdict: "pass"      # Options: "pass", "conditional", "any"
+    bypass_allowed: true         # Can be overridden with explicit user approval
+    # If verdict != required or completion < min:
+    # → BLOCK with: "Audit verdict {verdict} does not meet requirement {required}."
+    # → Recommend: "Address audit findings before finalizing"
+
+  tests:
+    require_passing: true        # All tests must pass before finalization
+    blocking: true               # Block ship phase if tests fail
+    bypass_allowed: true         # Can be overridden with explicit user approval
+    coverage:
+      enforce: true              # Enforce coverage thresholds
+      thresholds:
+        line: 70                 # Minimum line coverage %
+        branch: 60               # Minimum branch coverage %
+        function: 80             # Minimum function coverage %
+    # If tests fail:
+    # → BLOCK with: "Cannot finalize. {n} tests failing."
+    # → To bypass: "finalize with failing tests"
+    # If coverage below threshold:
+    # → WARN with: "Coverage {actual}% below {threshold}% threshold."
+    # → Recommend: "Add tests to improve coverage"
+
+# ============================================================================
+# GIT & COMMIT RULES
+# ============================================================================
+git:
+  require_branch: false          # Force working on non-main branch
+  protected_branches:
+    - main
+    - master
+  # If require_branch is true and on protected branch:
+  # → WARN with: "Working on protected branch. Create feature branch?"
+
+  commit:
+    require_workgroup_id: true   # Include WorkGroup ID in commit message
+    require_co_author: true      # Add Co-Authored-By footer
+    conventional_commits: true   # Enforce conventional commit format
+    # Conventional format: type(scope): description
+    # Types: feat, fix, docs, refactor, test, chore
+
+  auto_commit: false             # Commit automatically on finalize
+  # If auto_commit is false:
+  # → Stage files and report what would be committed
+  # → User must explicitly approve commit
+
+# ============================================================================
+# FINALIZATION RULES
+# ============================================================================
+finalization:
+  require_passing_audit: true    # Must have passing/conditional audit
+  require_spec_update: true      # As-built specs must be updated
+  archive_workgroup: true        # Move completed WorkGroup to archive
+  # If audit not passing:
+  # → BLOCK with: "Cannot finalize. Audit verdict: {verdict}"
+  # If spec not updated:
+  # → WARN with: "As-built spec not updated. Update before finalizing?"
+
+# ============================================================================
+# PRE-AUTHORIZED BYPASSES
+# ============================================================================
+# Users can pre-emptively authorize specific bypasses here.
+# These will auto-approve WITHOUT stopping for user confirmation.
+# All bypasses are still logged.
+#
+# Format:
+#   - gate: <gate_name>          # workgroup, phase_sequence, spec_quality, audit
+#     condition: "<expression>"  # Condition that must be true
+#     reason: "<justification>"  # Why this bypass is allowed
+#
+# Examples:
+#   - gate: spec_quality
+#     condition: "score >= 50"
+#     reason: "Rapid prototyping phase"
+#
+#   - gate: audit
+#     condition: "verdict != 'fail'"
+#     reason: "Iterative development - conditional pass acceptable"
+#
+#   - gate: phase_sequence
+#     phases: ["build", "check"]
+#     reason: "Hotfix workflow - parallel build and check"
+
+pre_authorized_bypasses: []
+# Add your project-specific bypasses above
+
+# ============================================================================
+# ENFORCEMENT BEHAVIOR
+# ============================================================================
+enforcement:
+  log_all_bypasses: true         # Log all bypasses (user or pre-authorized)
+  log_path: "knowz/logs/enforcement.log"
+
+  # Override phrases that agents should recognize
+  override_phrases:
+    - "proceed anyway"
+    - "continue anyway"
+    - "override"
+    - "bypass"
+    - "skip this check"
+    - "finalize with failing tests"
+    - "finalize without passing audit"
+    - "skip to check"
+
+  # Warning display format
+  warning_format: |
+    ┌─────────────────────────────────────────────────────────┐
+    │ ⚠️  CHECKPOINT BLOCKED                                │
+    │                                                         │
+    │ Gate: {gate_name}                                       │
+    │ Current: {current_value}                                │
+    │ Required: {required_value}                              │
+    │                                                         │
+    │ Reason: {reason}                                        │
+    │                                                         │
+    │ Recommended: {recommendation}                           │
+    │                                                         │
+    │ To proceed anyway, explicitly confirm:                  │
+    │ "{override_phrase}"                                     │
+    └─────────────────────────────────────────────────────────┘

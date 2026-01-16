@@ -1,0 +1,55 @@
+{
+  "name": "return-contract-validator",
+  "version": "1.0.0",
+  "description": "Validate subagent return contracts. Shared schema for all agents.",
+  "parameters": [
+    {
+      "name": "response",
+      "type": "object",
+      "required": true,
+      "description": "The subagent response to validate"
+    },
+    {
+      "name": "max_tokens",
+      "type": "integer",
+      "required": false,
+      "default": 800,
+      "description": "Maximum token count for response"
+    }
+  ],
+  "base_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["status"],
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": ["complete", "blocked", "error"]
+      },
+      "summary": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "blocking_issues": {
+        "type": "array",
+        "items": {"type": "string"},
+        "maxItems": 5
+      }
+    }
+  },
+  "validation": {
+    "steps": [
+      "Parse JSON (fail → status:blocked, reason:invalid_json)",
+      "Check status field exists (fail → status:blocked, reason:missing_status)",
+      "Check status is valid enum",
+      "Check token count within limit"
+    ],
+    "on_failure": "Return status:blocked with validation error, do not crash workflow"
+  },
+  "errors": {
+    "invalid_json": {"code": "RCV001", "action": "return_blocked"},
+    "missing_status": {"code": "RCV002", "action": "return_blocked"},
+    "invalid_status": {"code": "RCV003", "action": "return_blocked"},
+    "exceeds_token_limit": {"code": "RCV004", "action": "return_blocked"}
+  }
+}

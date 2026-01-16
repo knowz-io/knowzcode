@@ -1,0 +1,16 @@
+{
+  "description": "Schema for tracker status updates during finalization",
+  "format": {
+    "workgroups": {
+      "{wgid}": {
+        "status": "complete",
+        "completed_at": "ISO timestamp",
+        "final_completion_pct": 0.0,
+        "deviations_accepted": 0,
+        "specs_updated": true
+      }
+    }
+  },
+  "required_fields": ["status", "completed_at", "final_completion_pct"],
+  "status_values": ["complete", "archived"]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "knowz",
+  "version": "3.0.0",
+  "description": "Lean orchestrator with context protection, cycle execution, and MCP isolation for Claude Code",
+  "author": "Alex",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/knowz-io/knowz"
+  },
+  "homepage": "https://knowz.io",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "orchestrator",
+    "mcp",
+    "context-engineering",
+    "spec-driven-development"
+  ],
+  "bin": {
+    "knowz": "bin/install.js"
+  },
+  "files": [
+    "bin",
+    ".claude"
+  ],
+  "engines": {
+    "node": ">=16.7.0"
+  }
+}
