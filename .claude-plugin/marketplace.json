@@ -21,7 +21,33 @@
       "repository": "https://github.com/knowz-io/knowzcode",
       "license": "MIT",
       "keywords": ["orchestrator", "claude-code", "spec-driven", "subagents", "context-management", "vibe-coding"],
-      "category": "productivity"
+      "category": "productivity",
+      "commands": [
+        "./.claude/commands/k-audit.md",
+        "./.claude/commands/k-continue.md",
+        "./.claude/commands/k-execute.md",
+        "./.claude/commands/k-finalize.md",
+        "./.claude/commands/k-fix.md",
+        "./.claude/commands/k-init.md",
+        "./.claude/commands/k-mcp-setup.md",
+        "./.claude/commands/k-mcp.md",
+        "./.claude/commands/k-plan.md",
+        "./.claude/commands/k-scan.md",
+        "./.claude/commands/k-spec.md",
+        "./.claude/commands/k-work.md"
+      ],
+      "agents": [
+        "./.claude/agents/k-arc-auditor.md",
+        "./.claude/agents/k-finalization.md",
+        "./.claude/agents/k-impact-analyst.md",
+        "./.claude/agents/k-impl-agent.md",
+        "./.claude/agents/k-mcp-agent.md",
+        "./.claude/agents/k-mcp-gemini-executor.md",
+        "./.claude/agents/k-orchestrator.md",
+        "./.claude/agents/k-parallel-planner.md",
+        "./.claude/agents/k-scan-agent.md",
+        "./.claude/agents/k-spec-chief.md"
+      ]
     }
   ]
 }
