@@ -1,9 +1,9 @@
 {
-  "name": "knowz",
+  "name": "knowzcode (Dev Build)",
   "version": "0.1.0",
-  "description": "Knowz - Lean orchestrator with context protection, cycle execution, and MCP isolation",
-  "author": "Alex",
-  "repository": "https://github.com/knowz-io/knowz",
+  "description": "Lean orchestrator for Claude Code bringing together spec-driven development, subagents with context management, and personal knowledge store for a superior vibe coding experience",
+  "author": "Alex Headscarf",
+  "repository": "https://github.com/knowz-io/knowzcode",
   "license": "MIT",
   "homepage": "https://knowz.io",
   "commands": [

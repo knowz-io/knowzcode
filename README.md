@@ -58,12 +58,6 @@ Cycle 2: [Task D depends on A,B]     ← Sequential dependency
 Cycle 3: [Final aggregation]
 ```
 
-Benefits:
-- Reduced total execution time (3-5x faster)
-- Better resource utilization
-- Clear dependency visualization
-- Quality verification between cycles
-
 ### 3. MCP Manager
 
 The Model Context Protocol (MCP) manager provides context-isolated access to external tools:
