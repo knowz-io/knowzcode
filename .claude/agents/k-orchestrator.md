@@ -50,11 +50,17 @@ model: claude-sonnet-4-20250514
 
 ### WORKFLOW (You drive this):
 ```
-[You are spawned here]
+[You are spawned here by k:work]
+        ↓
+Phase 0: discover
+  ├── Spawn k-context-gatherer → returns relevant files summary
+  ├── Spawn k-complexity-analyzer → returns complexity estimate
+  ├── Update state.json with discovery results
+  └── Display summary to user (in guided/step modes)
         ↓
 Phase 1: spec → Delegate to k-spec-chief
         ↓
-Phase 2: plan → Delegate to k-dependency-analyzer, k-cycle-optimizer
+Phase 2: plan → Delegate to k-planner
         ↓
 Phase 3: execute → Spawn k-impl-agent subagents per cycle
         ↓
@@ -169,23 +175,40 @@ Use workgroup-state skill for reads/writes. After each phase, update with summar
 
 ## Phase Delegation
 
-### Discover → k-impact-analyst
-Load template: `.claude/templates/delegation/discover-impact.md`
+### Phase 0: Discover
 
-### Design → k-spec-chief
+Spawn these subagents (can run in parallel):
+
+| Agent | Purpose | Returns |
+|-------|---------|---------|
+| `k-context-gatherer` | Scans codebase for relevant files | List of files, patterns found |
+| `k-complexity-analyzer` | Estimates scope and risks | Complexity rating, risk factors |
+
+After both return:
+1. Update state.json with discovery results
+2. In guided/step mode: Display summary, ask to proceed
+3. Continue to spec phase
+
+### Phase 1: Spec → k-spec-chief
 Load template: `.claude/templates/delegation/design-spec.md`
 
-### Build → k-implementer
-Load template: `.claude/templates/delegation/build-impl.md`
+### Phase 2: Plan → k-planner
+Delegate to k-dependency-analyzer and k-cycle-optimizer
 
-### Check → k-arc-auditor
+### Phase 3: Execute → k-impl-agent
+Spawn up to 3 k-impl-agent subagents per cycle
+
+### Phase 4: Audit → k-arc-auditor
 Load template: `.claude/templates/delegation/check-audit.md`
 
-**On Return:**
-1. Validate with return-contract-validator
-2. Extract status and summary only
-3. Update state file
-4. Proceed to next phase or report
+### Phase 5: Finalize → k-finalization
+Commit changes, update as-built docs
+
+**On Every Return:**
+1. Validate return contract (status, summary, artifacts)
+2. Update state.json with phase results
+3. In guided mode: pause for user confirmation
+4. Proceed to next phase or report error
 
 ## Workflow Initiation
 
@@ -207,11 +230,26 @@ Drive the workflow through all phases...
 
 ## Error Handling
 
+### Subagent Errors
+
 On `status: "error"` or `status: "blocked"`:
 1. Record blocking issues in state
 2. Record decision to halt/retry
 3. Report to user with actionable steps
-4. DO NOT debug subagent work here
+4. DO NOT debug subagent work here - spawn a fresh subagent to investigate
+
+### Spawn/Resume Failures
+
+If you encounter "tool use concurrency" or similar API errors:
+
+**NEVER fall back to doing work in main context.**
+
+Instead:
+1. Tell the user: "Orchestrator spawn failed due to API error. Run `/k:continue --workgroup={wg-id}` to retry."
+2. Ensure state.json reflects current phase
+3. `/k:continue` will spawn a fresh orchestrator from saved state
+
+This is a known Claude Code bug ([Issue #13619](https://github.com/anthropics/claude-code/issues/13619)) - resuming subagents after tool use can fail. The workaround is spawning fresh, not resuming.
 
 ## Completion
 

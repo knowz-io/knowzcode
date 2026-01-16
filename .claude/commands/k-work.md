@@ -11,31 +11,25 @@ arguments:
     default: guided
 ---
 
-## ⛔ CRITICAL: READ BEFORE PROCEEDING ⛔
+## ⛔ CRITICAL: STAY MINIMAL ⛔
 
-**THIS COMMAND INITIALIZES A WORKGROUP AND HANDS OFF TO THE ORCHESTRATOR.**
+**THIS COMMAND ONLY CREATES THE WORKGROUP AND SPAWNS THE ORCHESTRATOR.**
 
 YOU MUST:
-1. Create the WorkGroup directory and state files
-2. Gather initial context
-3. Display summary
-4. **SPAWN THE ORCHESTRATOR to drive the workflow**
+1. Create the WorkGroup directory and state.json
+2. **IMMEDIATELY spawn the orchestrator**
 
-❌ DO NOT:
-- Write any implementation code yourself
-- Modify source files directly
-- Skip to implementation
-- Bypass the orchestrator handoff
+❌ DO NOT (these fill main context):
+- Gather context yourself
+- Analyze the goal yourself
+- Read codebase files yourself
+- Do ANY research yourself
 
-**WORKFLOW IS MANDATORY (driven by orchestrator):**
+**The orchestrator handles discovery via subagents.**
+
 ```
-/k:work → [orchestrator] → spec → plan → execute → audit → finalize
+/k:work → [spawn orchestrator immediately] → orchestrator handles everything
 ```
-
-**AFTER COMPLETING INITIALIZATION, YOU MUST:**
-1. Display the WorkGroup summary
-2. Spawn the `k-orchestrator` agent via Task tool (see "Orchestrator Handoff" section)
-3. The orchestrator takes over from there
 
 ---
 
@@ -51,249 +45,141 @@ YOU MUST:
 
 ## What It Does
 
-Creates a new WorkGroup session with a defined goal, initializing the tracking state and preparing for the specification phase.
+Creates a new WorkGroup session and immediately hands off to the orchestrator. The orchestrator drives all phases including discovery.
 
 ### Execution Modes
 
 | Mode | Description |
 |------|-------------|
-| `auto` | Runs through all phases automatically, pausing only on errors |
-| `guided` | Prompts for confirmation between major phases |
-| `step` | Requires explicit approval for each step |
+| `auto` | Orchestrator runs all phases automatically |
+| `guided` | Orchestrator pauses between phases for review |
+| `step` | Orchestrator pauses after each significant action |
 
-### Step-by-Step Process
+## Step-by-Step Process (MINIMAL)
 
-1. **Validate Environment**
-   - Check `knowz/` directory exists (run `/k:init` if missing)
-   - Load `knowz/config.yaml` settings
-   - Verify no conflicting active WorkGroup
+### 1. Validate Environment
+- Check `knowz/` directory exists (run `/k:init` if missing)
+- Verify no conflicting active WorkGroup
 
-2. **Generate Slug and WorkGroup ID**
+### 2. Generate Slug and WorkGroup ID
 
-   **Slug Generation Rules:**
-   - Extract key nouns and verbs from goal
-   - Remove stop words (the, a, an, to, for, with, and, of)
-   - Convert to kebab-case
-   - Limit to 3-5 words
-   - Lowercase only
+**Slug Generation Rules:**
+- Extract key nouns and verbs from goal
+- Remove stop words (the, a, an, to, for, with, and, of)
+- Convert to kebab-case, limit to 3-5 words
 
-   **Examples:**
-   | Goal | Slug | WorkGroup ID |
-   |------|------|--------------|
-   | "Implement user authentication with OAuth2" | `user-auth-oauth2` | `wg-user-auth-oauth2-20240115` |
-   | "Add pagination to API endpoints" | `api-pagination` | `wg-api-pagination-20240115` |
-   | "Configure custom domains for Azure" | `azure-custom-domains` | `wg-azure-custom-domains-20240115` |
+**Examples:**
+| Goal | WorkGroup ID |
+|------|--------------|
+| "Implement user authentication with OAuth2" | `wg-user-auth-oauth2-20240115` |
+| "Add pagination to API endpoints" | `wg-api-pagination-20240115` |
 
-3. **Extract Keywords**
-   - Identify searchable terms from goal
-   - Include: technologies, actions, components
-   - Store in state.json and README.md for search
-
-4. **Create WorkGroup Directory**
-   ```
-   knowz/workgroups/wg-{YYYYMMDD}-{slug}/
-   ├── README.md            # Human-readable documentation
-   ├── state.json           # Machine-readable state
-   ├── timeline.log         # Timestamped event log
-   └── context/             # Gathered context files
-   ```
-
-5. **Analyze Goal**
-   - Parse goal statement for key requirements
-   - Identify affected system areas
-   - Detect potential dependencies
-   - Estimate complexity (small/medium/large)
-
-6. **Gather Initial Context**
-   - If `knowz/scans/` exists, load relevant sections
-   - Scan codebase for related files
-   - Store context in `context/` directory
-
-7. **Initialize Dual-Format Files**
-
-   **README.md (Human-Readable):**
-   ```markdown
-   # WorkGroup: User Authentication with OAuth2
-
-   **ID:** `wg-user-auth-oauth2-20240115`
-   **Created:** 2024-01-15T10:30:00Z
-   **Status:** Planning - In Progress
-
-   ## Goal
-   Implement user authentication with OAuth2 for secure login.
-
-   ## Keywords
-   authentication, oauth2, user, login, security
-
-   ## Requirements
-   - Support Google and GitHub OAuth providers
-   - Store refresh tokens securely
-   - Implement session management
-   ```
-
-   **state.json (Machine-Readable):**
-   ```json
-   {
-     "workgroup_id": "wg-user-auth-oauth2-20240115",
-     "slug": "user-auth-oauth2",
-     "title": "User Authentication with OAuth2",
-     "primary_goal": "Implement user authentication with OAuth2",
-     "keywords": ["authentication", "oauth2", "user", "login", "security"],
-     "created_at": "2024-01-15T10:30:00Z",
-     "current_phase": "1",
-     "phases": {
-       "spec": "pending",
-       "plan": "pending",
-       "execute": "pending",
-       "audit": "pending",
-       "finalize": "pending"
-     }
-   }
-   ```
-
-8. **Display Summary**
-   - Show WorkGroup ID (slug-based, searchable)
-   - Display extracted keywords
-   - Display detected complexity
-   - List gathered context files
-   - Suggest next command (`/k:spec`)
-
-## Agents Delegated
-
-| Agent | Purpose |
-|-------|---------|
-| `k-context-gatherer` | Scans codebase for relevant files and patterns |
-| `k-complexity-analyzer` | Estimates scope and identifies risks |
-
-## Expected Outcomes
-
-- New WorkGroup directory created under `knowz/workgroups/`
-- `goal.md` with parsed requirements
-- `state.json` initialized at "spec" phase
-- Context gathered and ready for specification
-
-## State Transitions
+### 3. Create WorkGroup Directory
 
 ```
-[start] → initialized → spec → plan → execute → audit → finalize → [complete]
+knowz/workgroups/wg-{YYYYMMDD}-{slug}/
+├── README.md            # Basic info only
+├── state.json           # Initialized state
+├── timeline.log         # Event log
+└── context/             # Empty - orchestrator fills this
 ```
 
-## Mode Behavior
+### 4. Initialize State
 
-### Auto Mode
+**state.json:**
+```json
+{
+  "workgroup_id": "wg-{slug}-{date}",
+  "slug": "{slug}",
+  "primary_goal": "{goal}",
+  "mode": "{auto|guided|step}",
+  "created_at": "{timestamp}",
+  "current_phase": "discover",
+  "phases": {
+    "discover": "pending",
+    "spec": "pending",
+    "plan": "pending",
+    "execute": "pending",
+    "audit": "pending",
+    "finalize": "pending"
+  }
+}
 ```
-/k:work "goal" --mode=auto
-```
-After initialization, automatically proceeds through all phases via orchestrator.
 
-### Guided Mode (Default)
-```
-/k:work "goal" --mode=guided
-```
-After initialization, spawns orchestrator which pauses between phases for review.
+### 5. Spawn Orchestrator IMMEDIATELY
 
-### Step Mode
-```
-/k:work "goal" --mode=step
-```
-After initialization, spawns orchestrator which pauses after each significant action.
+**Do not do any research or context gathering. Spawn the orchestrator now.**
 
-## Orchestrator Handoff (CRITICAL)
-
-**After Step 8 (Display Summary), you MUST spawn the orchestrator:**
+## Orchestrator Handoff
 
 ```
 Use Task tool to spawn k-orchestrator agent with:
 - subagent_type: "k-orchestrator"
 - prompt: |
-    Resume orchestration for WorkGroup: {wg-id}
+    Orchestrate WorkGroup: {wg-id}
     Goal: {goal-statement}
     Mode: {auto|guided|step}
-    Current Phase: spec (pending)
+    Current Phase: discover (pending)
 
-    Drive the workflow through all phases:
-    1. spec → Delegate to k-spec-chief
-    2. plan → Delegate to k-dependency-analyzer, k-cycle-optimizer
-    3. execute → Spawn k-impl-agent subagents per cycle
-    4. audit → Delegate to k-arc-auditor
-    5. finalize → Delegate to k-finalization
+    Start with discovery phase:
+    1. Spawn k-context-gatherer → get relevant files summary
+    2. Spawn k-complexity-analyzer → get complexity estimate
+    3. Update state.json with discovery results
+    4. Display summary to user
+
+    Then continue through phases:
+    5. spec → Delegate to k-spec-chief
+    6. plan → Delegate to k-planner
+    7. execute → Spawn k-impl-agent subagents per cycle
+    8. audit → Delegate to k-arc-auditor
+    9. finalize → Delegate to k-finalization
 
     State file: knowz/workgroups/{wg-id}/state.json
 
     CRITICAL: You are a ROUTER, not a worker.
-    - Do NOT read files yourself - spawn subagents to investigate
-    - Do NOT explore code yourself - spawn subagents to explore
-    - Do NOT analyze anything yourself - spawn subagents to analyze
-    - ONLY read state.json, spawn subagents, receive summaries, update state
+    - Do NOT read files yourself - spawn subagents
+    - Do NOT explore code yourself - spawn subagents
+    - Do NOT analyze anything yourself - spawn subagents
+    - ONLY spawn subagents, receive summaries, update state
 ```
 
-**The orchestrator takes over and drives the end-to-end workflow.**
+## Orchestrator Spawn Failure
 
-**Orchestrator stays lean by delegation:**
-- ALL exploration → subagents
-- ALL analysis → subagents
-- ALL implementation → subagents
-- Orchestrator only routes and decides based on subagent summaries
+If the Task tool returns an error (e.g., "tool use concurrency"):
 
-In guided/step modes, the orchestrator will pause at appropriate checkpoints.
-In auto mode, it runs through all phases, pausing only on errors.
+**NEVER fall back to doing work in main context.**
 
-## Enforcement Policy Integration
+Instead:
+1. Ensure state.json is saved
+2. Tell the user: "Orchestrator spawn failed. Run `/k:continue --workgroup={wg-id}` to retry."
+3. STOP - do not do any work yourself
 
-This command creates the WorkGroup that is **required** by other Knowz commands when enforcement is enabled.
+## State Transitions
 
-### WorkGroup Gate
-When `enforcement-policy.yaml` has `workgroups.require_active: true`:
-- `/k:spec`, `/k:plan`, `/k:execute`, `/k:audit`, `/k:finalize` will BLOCK without active WorkGroup
-- Users will see a warning and must run `/k:work` first (or explicitly override)
-
-### Enforcement Policy Location
 ```
-.claude/rules/enforcement-policy.yaml
-```
-
-### Bypassing WorkGroup Requirement
-If a user explicitly requests to bypass (after seeing the warning):
-- The bypass is logged to `knowz/logs/enforcement.log`
-- Work can proceed but without WorkGroup tracking benefits
-
-### Pre-Authorization
-Users can pre-authorize WorkGroup bypass in `enforcement-policy.yaml`:
-```yaml
-pre_authorized_bypasses:
-  - gate: workgroup
-    condition: "command == 'k:fix'"   # Allow /k:fix without WorkGroup
-    reason: "Quick fixes don't need full tracking"
+[k:work creates] → discover → spec → plan → execute → audit → finalize → [complete]
+                   ↑
+                   orchestrator starts here
 ```
 
 ## Notes
 
+- k:work does MINIMAL work - just creates WorkGroup and spawns orchestrator
+- ALL research, context gathering, analysis happens in orchestrator via subagents
 - Only one WorkGroup can be active at a time
-- Use `/k:continue` to resume an interrupted WorkGroup
-- Goal statement should be clear and actionable
-- Context gathering may take time on large codebases
-- **Other commands require active WorkGroup when enforcement is enabled**
+- Use `/k:continue --workgroup={wg-id}` to resume
 
 ---
 
-## ⚠️ REMINDER: HAND OFF TO ORCHESTRATOR ⚠️
+## ⚠️ REMINDER ⚠️
 
-**DO NOT IMPLEMENT DIRECTLY. SPAWN THE ORCHESTRATOR.**
+**DO NOT:**
+- Gather context yourself
+- Analyze the goal yourself
+- Read files yourself
+- Do ANY research yourself
 
-After Step 8 (Display Summary), spawn the orchestrator agent:
-
-```
-Task tool call:
-- subagent_type: "k-orchestrator"
-- description: "Orchestrate WorkGroup workflow"
-- prompt: (see Orchestrator Handoff section above)
-```
-
-The orchestrator will drive the complete workflow:
-1. **spec** - Create and refine specification
-2. **plan** - Create execution plan
-3. **execute** - Delegate to k-impl-agent subagents
-4. **audit** - Verify via k-arc-auditor
-5. **finalize** - Commit via k-finalization
-
-**NEVER SKIP THE ORCHESTRATOR. NEVER IMPLEMENT DIRECTLY.**
+**DO:**
+1. Create WorkGroup directory + state.json
+2. Spawn orchestrator immediately
+3. Stop - orchestrator takes over
