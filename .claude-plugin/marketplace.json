@@ -1,16 +1,16 @@
 {
-  "name": "knowzcode-marketplace (Dev Build)",
+  "name": "knowzcode-dev-marketplace",
   "owner": {
     "name": "Alex Headscarf",
     "email": ""
   },
   "metadata": {
-    "description": "Lean orchestrator for Claude Code bringing together spec-driven development, subagents with context management, and personal knowledge store for a superior vibe coding experience",
+    "description": "Lean orchestrator for Claude Code bringing together spec-driven development, subagents with context management, and personal knowledge store for a superior vibe coding experience (Dev Build)",
     "version": "0.1.0"
   },
   "plugins": [
     {
-      "name": "knowzcode (Dev Build)",
+      "name": "knowzcode-dev",
       "source": ".",
       "description": "Lean orchestrator for Claude Code bringing together spec-driven development, subagents with context management, and personal knowledge store for a superior vibe coding experience",
       "version": "0.1.0",
