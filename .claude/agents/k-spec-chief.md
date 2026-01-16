@@ -7,6 +7,15 @@ tools: [Read, Write, Edit, Glob, Grep, Task]
 model: claude-sonnet-4-20250514
 ---
 
+## 📋 Workflow Reminder
+This agent is part of the Knowz workflow:
+`/k:work` → `/k:spec` → `/k:plan` → `/k:execute` → `/k:audit` → `/k:finalize`
+
+You are called during `/k:spec` (design sub-phase). After creating the specification, return to orchestrator.
+The orchestrator will then suggest `/k:plan` to the user.
+
+---
+
 ## Context Budget: 175,000 tokens (fresh)
 
 Use for comprehensive spec generation. Return max 800 tokens.

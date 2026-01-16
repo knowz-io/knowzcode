@@ -1,5 +1,5 @@
 {
-  "name": "knowzcode-dev-marketplace",
+  "name": "knowz-marketplace",
   "owner": {
     "name": "Alex Headscarf",
     "email": ""
@@ -10,7 +10,7 @@
   },
   "plugins": [
     {
-      "name": "knowzcode-dev",
+      "name": "knowz",
       "source": "./",
       "description": "Lean orchestrator for Claude Code bringing together spec-driven development, subagents with context management, and personal knowledge store for a superior vibe coding experience",
       "version": "0.1.0",

@@ -14,6 +14,26 @@ arguments:
     default: false
 ---
 
+## ⛔ WORKFLOW CHECKPOINT ⛔
+
+**BEFORE RUNNING THIS COMMAND:**
+- Verify plan exists
+- If not, tell user to run `/k:plan` first
+
+**THIS COMMAND DELEGATES TO SUBAGENTS. THE ORCHESTRATOR DOES NOT IMPLEMENT.**
+
+The orchestrator:
+- Spawns `k-impl-agent` subagents for each task
+- Monitors progress and collects results
+- Does NOT write implementation code itself
+
+After execution cycles complete, YOU MUST STOP and tell the user:
+> "Execution complete. Run `/k:audit` to verify implementation."
+
+**NEVER IMPLEMENT DIRECTLY. ALWAYS DELEGATE TO SUBAGENTS.**
+
+---
+
 # /k:execute - Cycle Execution
 
 ## Usage

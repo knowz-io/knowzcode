@@ -11,6 +11,32 @@ arguments:
     default: guided
 ---
 
+## ⛔ CRITICAL: READ BEFORE PROCEEDING ⛔
+
+**THIS COMMAND ONLY INITIALIZES A WORKGROUP. IT DOES NOT IMPLEMENT ANYTHING.**
+
+YOU MUST:
+1. Create the WorkGroup directory and state files
+2. Gather initial context
+3. Display summary
+4. **STOP AND SUGGEST `/k:spec` AS NEXT STEP**
+
+❌ DO NOT:
+- Write any implementation code
+- Modify source files
+- Skip to implementation
+- Bypass the spec/plan/execute workflow
+
+**WORKFLOW IS MANDATORY:**
+```
+/k:work → /k:spec → /k:plan → /k:execute → /k:audit → /k:finalize
+```
+
+**AFTER COMPLETING INITIALIZATION, YOU MUST STOP AND TELL THE USER:**
+> "WorkGroup initialized. Run `/k:spec` to create the specification."
+
+---
+
 # /k:work - Start New WorkGroup
 
 ## Usage
@@ -214,3 +240,21 @@ pre_authorized_bypasses:
 - Goal statement should be clear and actionable
 - Context gathering may take time on large codebases
 - **Other commands require active WorkGroup when enforcement is enabled**
+
+---
+
+## ⚠️ REMINDER: STOP AFTER INITIALIZATION ⚠️
+
+**DO NOT PROCEED TO IMPLEMENTATION.**
+
+Your job is DONE after Step 8. Tell the user to run `/k:spec` next.
+
+The Knowz workflow is:
+1. `/k:work` - Initialize (YOU ARE HERE - STOP AFTER THIS)
+2. `/k:spec` - Create specification
+3. `/k:plan` - Create execution plan
+4. `/k:execute` - Delegate to subagents
+5. `/k:audit` - Verify completion
+6. `/k:finalize` - Commit changes
+
+**NEVER SKIP STEPS. NEVER IMPLEMENT DIRECTLY.**

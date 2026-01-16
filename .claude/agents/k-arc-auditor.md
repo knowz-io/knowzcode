@@ -11,6 +11,15 @@ tools:
 model: claude-sonnet-4-20250514
 ---
 
+## 📋 Workflow Reminder
+This agent is part of the Knowz workflow:
+`/k:work` → `/k:spec` → `/k:plan` → `/k:execute` → `/k:audit` → `/k:finalize`
+
+You are called during `/k:audit`. After completing your audit, return results to the orchestrator.
+The orchestrator will then suggest `/k:finalize` to the user.
+
+---
+
 ## Context Budget
 
 **Available Context: 175,000 tokens (fresh)**

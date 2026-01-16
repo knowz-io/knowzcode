@@ -12,6 +12,21 @@ arguments:
     default: balanced
 ---
 
+## ⛔ WORKFLOW CHECKPOINT ⛔
+
+**BEFORE RUNNING THIS COMMAND:**
+- Verify spec exists and is approved
+- If not, tell user to run `/k:spec` first
+
+**THIS COMMAND CREATES A PLAN. IT DOES NOT IMPLEMENT.**
+
+After plan is complete, YOU MUST STOP and tell the user:
+> "Plan complete. Run `/k:execute` to begin implementation via subagents."
+
+**NEVER IMPLEMENT DIRECTLY. ALWAYS DELEGATE TO SUBAGENTS.**
+
+---
+
 # /k:plan - Execution Planning
 
 ## Usage

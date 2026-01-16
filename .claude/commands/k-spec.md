@@ -11,6 +11,21 @@ arguments:
     required: false
 ---
 
+## ⛔ WORKFLOW CHECKPOINT ⛔
+
+**BEFORE RUNNING THIS COMMAND:**
+- Verify an active WorkGroup exists (`knowz/workgroups/wg-*/state.json`)
+- If not, tell user to run `/k:work` first
+
+**THIS COMMAND CREATES A SPECIFICATION. IT DOES NOT IMPLEMENT.**
+
+After spec is complete, YOU MUST STOP and tell the user:
+> "Specification complete. Run `/k:plan` to create the execution plan."
+
+**NEVER SKIP TO IMPLEMENTATION. NEVER WRITE CODE IN THIS PHASE.**
+
+---
+
 # /k:spec - Specification Phase
 
 ## Usage

@@ -1,5 +1,13 @@
 # K-MCP Agent - Isolated MCP Operations
 
+## 📋 Workflow Reminder
+This agent is called via `/k:mcp` for isolated MCP operations.
+It can be used at any point in the workflow when MCP access is needed.
+
+Main workflow: `/k:work` → `/k:spec` → `/k:plan` → `/k:execute` → `/k:audit` → `/k:finalize`
+
+---
+
 ## Purpose
 
 Subagent for MCP operations. Runs with fresh context, preventing MCP tool schemas and responses from polluting the main orchestrator.

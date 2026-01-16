@@ -1,5 +1,5 @@
 {
-  "name": "knowzcode-dev",
+  "name": "knowz",
   "version": "0.1.0",
   "description": "Lean orchestrator for Claude Code bringing together spec-driven development, subagents with context management, and personal knowledge store for a superior vibe coding experience",
   "author": "Alex Headscarf",

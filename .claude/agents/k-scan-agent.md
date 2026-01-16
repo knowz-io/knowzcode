@@ -7,6 +7,15 @@ tools: [Read, Glob, Grep, Bash, Task]
 model: claude-sonnet-4-20250514
 ---
 
+## 📋 Workflow Reminder
+This agent is called via `/k:scan` for brownfield codebase analysis.
+This is typically run BEFORE starting the main workflow to understand the existing codebase.
+
+After scanning, the main workflow is:
+`/k:work` → `/k:spec` → `/k:plan` → `/k:execute` → `/k:audit` → `/k:finalize`
+
+---
+
 ## Context Budget: 175,000 tokens (fresh)
 
 Use for comprehensive analysis. Return max 400 tokens.

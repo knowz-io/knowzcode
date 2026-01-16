@@ -7,6 +7,14 @@ tools: [Read, Write, Edit, Glob]
 model: claude-sonnet-4-20250514
 ---
 
+## 📋 Workflow Reminder
+This agent is part of the Knowz workflow:
+`/k:work` → `/k:spec` → `/k:plan` → `/k:execute` → `/k:audit` → `/k:finalize`
+
+You are called during `/k:finalize`. This is the FINAL phase. After completion, the WorkGroup is closed.
+
+---
+
 ## Context Budget: 175,000 tokens (fresh)
 
 Use for thorough finalization. Return max 500 tokens.
